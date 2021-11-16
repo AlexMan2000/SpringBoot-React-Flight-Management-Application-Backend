@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="nyu.alex.dao.mapper.IBookingAgentDao">
+
+    <resultMap id="bookingAgent" type="BookingAgent">
+        <id property="email" column="email"></id>
+        <result property="password" column="password"></result>
+        <result property="bookingAgentId" column="booking_agent_id"></result>
+        <result property="commissionFees" column="tot_comm"></result>
+        <result property="averageCommissionFees" column="avg_comm"></result>
+        <result property="ticketBooked" column="comm_num"></result>
+        <collection property="airlineNames" javaType="java.util.ArrayList" ofType="String">
+        </collection>
+    </resultMap>
+
+    <!-- 已测试-->
+    <select id="findBookingAgentByEmail" resultMap="bookingAgent">
+        select a.*,b.airline_name from booking_agent as a
+        left join booking_agent_work_for as b
+            on a.email = b.email
+        where a.email=#{email}
+    </select>
+
+    <sql id="findCommissionTemplate">
+        select count(*) as comm_num,avg(price)*1.1 as avg_comm,sum(price)*1.1 as tot_comm,b.email as email,b.password as password
+        from booking_agent as b
+        left join ticket as t
+        on t.booking_agent_id = b.booking_agent_id
+        left join flight as f
+        on f.flight_num = t.flight_num
+        and f.airline_name = t.airline_name
+    </sql>
+
+
+    <select id="findCommissionInfo" resultMap="bookingAgent">
+        <include refid="findCommissionTemplate"/>
+        where b.email = #{email} and
+        TO_DAYS(NOW()) - TO_DAYS(purchase_time) &lt;= #{interval}
+        group by b.email order by tot_comm
+    </select>
+
+    <insert id="insertBookingAgent" parameterType="nyu.alex.dao.entity.BookingAgent">
+        insert into booking_agent values(#{email},#{password},#{bookingAgentId})
+    </insert>
+
+    <update id="updateBookingAgent" parameterType="nyu.alex.dao.entity.BookingAgent">
+        update booking_agent set password = #{password},booking_agent_id=#{bookingAgentId}
+        where email = #{email}
+    </update>
+</mapper>

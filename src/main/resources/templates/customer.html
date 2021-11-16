@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Title</title>
+    <script src="https://cdn.bootcss.com/echarts/4.6.0/echarts.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link href="css/dashboard.css" th:href="@{/css/dashboard.css}" rel="stylesheet">
+    <link href="css/bootstrap.min.css" th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet">
+    <script type="text/javascript" src="js/bootstrap.min.js" th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.min.js}"></script>
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.0/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/js/tempusdominus-bootstrap-4.min.js" integrity="sha512-k6/Bkb8Fxf/c1Tkyl39yJwcOZ1P4cRrJu77p83zJjN2Z55prbFHxPs9vN7q3l3+tSMGPDdoH51AEU8Vgo1cgAA==" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/css/tempusdominus-bootstrap-4.min.css" integrity="sha512-3JRrEUwaCkFUBLK1N8HehwQgu8e23jTH4np5NHOmQOobuC4ROQxFwFgBLTnhcnQRMs84muMh0PnnwXlPq5MGjg==" crossorigin="anonymous" />
+
+    <style>
+        *{ margin:0; padding:0;}
+        .popOutBg{ width:100%; height:100%; position: fixed; left:0; top:0; background:rgba(0,0,0,.6); display: none;z-index:50;}
+        .popOut{ position:fixed; width:680px; height:240px; top:29%; left:50%; margin-top:-8px; margin-left:-265px; background:#fff; border-radius:8px; overflow: hidden; display: none;z-index:100;}
+        .popOut > span{ position: absolute; right:10px; top:0; height:42px; line-height:42px; color:#000; font-size:30px; cursor: pointer;}
+        @keyframes ani{
+            from{
+                transform:translateX(-100%) rotate(-60deg) scale(.5);
+            }
+            50%{
+                transform:translateX(0) rotate(0) scale(1);
+            }
+            90%{
+                transform:translateX(20px) rotate(0) scale(.8);
+            }
+            to{
+                transform:translateX(0) rotate(0) scale(1);
+            }
+        }
+        .ani{ animation:ani .5s ease-in-out;}
+
+        /*#customerBar {*/
+        /*    z-index:10;*/
+        /*}*/
+    </style>
+
+</head>
+<body>
+
+
+<div th:replace="commons/bar::topbarForCustomer"></div>
+
+
+<div class="popOutBg"></div>
+<div class="popOut">
+    <span title="Close"> x </span>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Hope you had fun there!</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure to sign out?</p>
+        </div>
+        <div class="modal-footer">
+            <button id="no" type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+            <button id="yes" type="button" class="btn btn-primary"><a href="/index"><text style="color:white;">Yes</text></a></button>
+        </div>
+    </div>
+
+</div>
+
+
+<div class="container-fluid">
+    <div class="row">
+        <div th:replace="commons/bar::#sidebarCustomer"></div>
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+            <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+            <div id="main" style="width: 600px;height:400px;" th:if="${1==0}"></div>
+            <div id="testBinding" style="width:300px;height:200px" th:if="${1==0}">
+                <table class="part1">
+                    <tr th:each="value,interStat : ${values}">
+                        <td th:text="${interStat.index}"></td>
+                        <td th:text="${value}"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="container" >
+                <div class="container">
+                    <form>
+                        <div class="form-row">
+                            <div class="form-group col-md-3">
+                                <label for="startDate">Start Date</label>
+                                <div class="input-group date" id="datetimepicker4" data-target-input="nearest">
+                                    <input id="startDate" type="text" class="form-control datetimepicker-input" data-target="#datetimepicker4"/>
+                                    <div class="input-group-append" data-target="#datetimepicker4" data-toggle="datetimepicker">
+                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="startDate">End Date</label>
+                                <div class="input-group date" id="datetimepicker3" data-target-input="nearest">
+                                    <input id="endDate" type="text" class="form-control datetimepicker-input" data-target="#datetimepicker3"/>
+                                    <div class="input-group-append" data-target="#datetimepicker3" data-toggle="datetimepicker">
+                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="inputAddress">Source Airport</label>
+                                <input type="text" class="form-control" id="inputAddress" name="sourceAirport" placeholder="AUH">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="inputAddress2">Dest Airport</label>
+                                <input type="text" class="form-control" id="inputAddress2" name="destAirport" placeholder="HKG">
+                            </div>
+                        </div>
+                        <button id="submit" type="button" class="btn btn-primary">Search</button>
+                        <button id="reset" type="button" class="btn btn-primary">Reset</button>
+                    </form>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped table-sm">
+                        <tbody>
+                        <tr th:each="flight,interStat : ${flights}">
+                            <td th:text="${interStat.index}"></td>
+                            <td th:text="${flight.flightNum}"></td>
+                            <td th:text="${flight.sourceAirport.name}"></td>
+                            <td th:text="${flight.destAirport.name}"></td>
+                            <td th:text="${flight.sourceAirport.city}"></td>
+                            <td th:text="${flight.destAirport.city}"></td>
+                            <td th:text="${flight.status}"></td>
+                            <td th:text="${flight.airline.name}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </main>
+
+    </div>
+</div>
+
+
+
+<script type="text/javascript" th:inline="javascript">
+
+    $(function () {
+        $('#datetimepicker4').datetimepicker({
+            format: 'L'
+        });
+        $('#datetimepicker3').datetimepicker({
+            format: 'L'
+        });
+    });
+
+    function temp(param){
+        if(arguments[1] == true){
+            return document.querySelectorAll(param);
+        }else{
+            return document.querySelector(param);
+        }
+    }
+    function ani(){
+        temp(".popOut").className = "popOut ani";
+    }
+    temp("#SignOut").onclick = function(){
+        temp(".popOut").style.display = "block";
+        ani();
+        temp(".popOutBg").style.display = "block";
+    };
+    temp("#no").onclick = function(){
+        temp(".popOut").style.display = "none";
+        temp(".popOutBg").style.display = "none";
+    };
+    temp(".popOut > span").onclick = function(){
+        temp(".popOut").style.display = "none";
+        temp(".popOutBg").style.display = "none";
+    };
+    temp(".popOutBg").onclick = function(){
+        temp(".popOut").style.display = "none";
+        temp(".popOutBg").style.display = "none";
+    };
+
+
+    $("#submit").on("click",function(){
+        var bootstrapValidator = $("#bookingAgentForm").data('bootstrapValidator');
+        bootstrapValidator.validate();
+        if(bootstrapValidator.isValid()){
+            var formObject = {};
+            var formArray =$("#bookingAgentForm").serializeArray();
+            $.each(formArray,function(i,item){
+                if(item.value===''){
+                    formObject[item.name] = null;
+                }else{
+                    console.log("xixi");
+                    formObject[item.name] = item.value
+                    ;}
+            });
+            $.ajax({
+                url:"/register/registerCustomer",
+                type:"post",
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(formObject),
+                dataType: "text",
+                success:function(data){
+                    console.log("fuck you");
+                    if(data=="User Not Found!"){
+                        console.log("haha");
+                    }else if(data=="Password Error!"){
+                        console.log("xixi");
+                    }else if(data=="BookingId Error!"){
+                        console.log("pipi");
+                    }else{
+                        alert("Register Success");
+                        window.location.href="/index";
+                    }
+                },
+
+            })
+        }
+    });
+
+    $('#reset').on('click', function () {
+        var bootstrapValidator = $("#customerForm").data('bootstrapValidator');
+        bootstrapValidator.resetForm();
+        $('input').val('')
+    });
+
+
+
+
+    // 基于准备好的dom，初始化echarts实例
+    var barChart = echarts.init(document.getElementById('main'));
+    var modelData = [[${data}]];
+    console.log(modelData);
+    let modelDate = [[${date}]];
+    let modelValue = [[${values}]]
+    // 指定图表的配置项和数据
+    // barchart
+    var option = {
+        title: {
+            text: 'Tracking Spending'
+        },
+        tooltip: {},
+        legend: {
+            data:['spending']
+        },
+        xAxis: {
+            // data: ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋","袜子"]
+            data:[[${date}]]
+        },
+        yAxis: {},
+        series: [{
+            name: 'spending',
+            type: 'bar',
+            data: [[${values}]]
+        }]
+    };
+
+    // 使用刚指定的配置项和数据显示图表。
+    barChart.setOption(option);
+
+    var pieChart = echarts.init(document.getElementById('main2'));
+    var dataModel;
+    $.ajax({ //你需要写这些请求  异步请求数据
+        type: "GET",
+        url: "/test/chartAjax",
+        dataType: 'json',
+        success: function (data) {
+            // 指定图表的配置项和数据
+            dataModel = data.values;
+            option = {
+                title: {
+                    text: 'TrackSpending',
+                    subtext: 'User',
+                    x: 'center'
+                },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: "{a} <br/>{b} : {c} ({d}%)"
+                },
+                // legend: {
+                //     orient: 'vertical',
+                //     left: 'left',
+                //     data: data.nameNumberList.goodsname
+                // },
+                series: [
+                    {
+                        name: 'spent amount',
+                        type: 'pie',
+                        radius: '55%',
+                        center: ['50%', '60%'],
+                        data: data.values,
+                        itemStyle: {
+                            emphasis: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        }
+                    }
+                ]
+            };
+            // 使用刚指定的配置项和数据显示图表。
+            pieChart.setOption(option);
+        }
+    });
+
+
+
+
+</script>
+</body>
+</html>

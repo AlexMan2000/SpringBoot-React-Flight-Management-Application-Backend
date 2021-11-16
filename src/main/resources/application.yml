@@ -1,0 +1,31 @@
+server:
+  port: 8080
+  session:
+    timeout: 1800 #以秒为单位
+spring:
+  devtools:
+    restart:
+      enabled: true  #设置开启热部署
+      additional-paths: src/main/java #重启目录
+      exclude: WEB-INF/**  #指定所有web的静态资源的修改都不会导致整个application重启
+  thymeleaf:
+    cache: false #关闭模板引擎缓存，使得刷新浏览器之后能够更新页面
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql:///database_project_pro?useUnicode=true&characterEncoding=UTF8&serverTimezone=UTC
+    username: root
+    password: 123456
+  mvc:
+    format:
+      date-time: yyyy-MM-dd HH:mm:ss
+#logging:
+#  level:
+#    nyu.alex.dao.mapper : debug
+mybatis:
+  type-aliases-package: nyu.alex.dao.entity #配置结果集映射实体类
+  mapper-locations: classpath:/mapper/*.xml  #配置sql语句Mapper
+  configuration:
+    aggressive-lazy-loading: false
+    lazy-loading-enabled: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

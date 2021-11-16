@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="nyu.alex.dao.mapper.IAirportDao">
+    <resultMap id="airport" type="Airport">
+        <id property="airportName" column="airport_name"></id>
+        <result property="airportCity" column="airport_city"></result>
+    </resultMap>
+
+    <select id="findAllAirports" resultMap="airport">
+        select * from airport
+    </select>
+    
+    <select id="findAirportByName" parameterType="String" resultMap="airport">
+        select * from airport where airport_name=#{name}
+    </select>
+
+</mapper>

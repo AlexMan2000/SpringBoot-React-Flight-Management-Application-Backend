@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="nyu.alex.dao.mapper.ICustomerDao">
+    <resultMap id="customer" type="Customer">
+        <id property="email" column="email"></id>
+        <result property="name" column="name"></result>
+        <result property="password" column="password"></result>
+        <result property="buildingNumber" column="building_number"></result>
+        <result property="street" column="street"></result>
+        <result property="city" column="city"></result>
+        <result property="livingState" column="living_state"></result>
+        <result property="phoneNumber" column="phone_number"></result>
+        <result property="passportNumber" column="passport_number"></result>
+        <result property="passportExpiration" column="passport_expiration"></result>
+        <result property="passportCountry" column="passport_country"></result>
+        <result property="birthday" column="date_of_birth"></result>
+        <collection property="takenFlights" javaType="java.util.ArrayList" ofType="Flight"
+      >
+            <id property="flightNum" column="flight_num"></id>
+            <result property="departureTime" column="departure_time"></result>
+            <result property="arrivalTime" column="arrival_time"></result>
+            <result property="price" column="price"></result>
+            <result property="status" column="status"></result>
+            <result property="airlineName" column="airline_name"></result>
+            <result property="airplaneName" column="plane_id"></result>
+            <result property="sourceAirportName" column="deaprt_airport_name"></result>
+            <result property="destAirportName" column="arrival_airport_name"></result>
+        </collection>
+    </resultMap>
+
+    <resultMap id="chart" type="HashMap">
+        <result property="month" column="date" javaType= "Date"></result>
+        <result property="value" column="spending" javaType="Float" jdbcType="NUMERIC"></result>
+    </resultMap>
+
+    <resultMap id="chartModel" type="nyu.alex.utils.dataUtils.DataRow">
+        <result property="timestamp" column="date" ></result>
+        <result property="value" column="spending" javaType="Float" jdbcType="NUMERIC"></result>
+    </resultMap>
+
+    <resultMap id="ticketInfo" type="nyu.alex.utils.dataUtils.TicketInfo">
+        <id property="ticketId" column="ticket_id"></id>
+        <result property="flightNumber" column="flight_num"></result>
+        <result property="departAirportName" column="departAirport"></result>
+        <result property="arrivalAirportName" column="arrivalAirport"></result>
+        <result property="departureTime" column="departureTime"></result>
+        <result property="arrivalTime" column="arrivalTime"></result>
+        <result property="status" column="status"></result>
+
+    </resultMap>
+
+    <select id="findCustomerByEmail" parameterType="String" resultMap="customer">
+        select * from customer where email=#{email}
+    </select>
+
+<!--    <select id="findAllFlightsWithCustomer" parameterType="String" resultMap="customer">-->
+<!--        select c.*,f.* from customer as c-->
+<!--        left join ticket as t on c.email = t.customer_email-->
+<!--        left join flight as f on t.flight_num = f.flight_num-->
+<!--        <where>-->
+<!--            c.email=#{email}-->
+<!--            and t.airline_name=#{airlineName}-->
+<!--            and f.status = "Upcoming"-->
+<!--        </where>-->
+<!--     </select>-->
+
+    <sql id="filters">
+        <where>
+            p.customer_email=#{email}
+            <if test="sourceAirport != null">
+                and f.departure_airport = #{sourceAirport}
+            </if>
+            <if test="destAirport != null">
+                and f.arrival_airport = #{destAirport}
+            </if>
+            <if test="startDate != null">
+                and departure_time &gt;= #{startDate}
+            </if>
+            <if test="endDate != null">
+                and departure_time &lt;= #{endDate}
+            </if>
+<!--            <choose>-->
+<!--                <when test="status!=null">-->
+<!--                    and f.status=#{status}-->
+<!--                </when>-->
+<!--                <otherwise>-->
+<!--                    and f.status="upcoming"-->
+<!--                </otherwise>-->
+<!--            </choose>-->
+        </where>
+    </sql>
+
+<!--    <select id="findAllFlightsWithCustomerFiltered" parameterType="String" resultMap="customer">-->
+<!--        select c.*,f.* from customer as c-->
+<!--        left join ticket as t on c.email = t.customer_email-->
+<!--        left join flight as f on t.flight_num = f.flight_num-->
+<!--        <include refid="filters"/>-->
+<!--    </select>-->
+
+    <select id="findMyFilteredFlights" resultMap="ticketInfo">
+        select t.ticket_id as ticket_id,
+               f.flight_num as flight_num,
+               f.departure_airport as departAirport,
+               f.arrival_airport as arrivalAirport,
+               f.departure_time as departureTime,
+               f.arrival_time as arrivalTime,
+               f.status as status
+               from purchases p
+                   join ticket t on p.ticket_id = t.ticket_id
+                   join flight f on t.airline_name = f.airline_name and t.flight_num = f.flight_num
+        <include refid="filters"/>
+    </select>
+
+    <select id="trackSpending" resultMap="chartModel">
+        select MONTH(p.purchase_date) as date,
+               sum(f.price) as spending
+        from purchases p
+        join ticket t on p.ticket_id = t.ticket_id
+        join flight f on t.flight_num = f.flight_num
+        <where>
+         p.customer_email=#{email}
+        <if test="startDate!=null">
+            and p.purchase_date &gt;= #{startDate}
+        </if>
+        <if test="endDate!=null">
+                and p.purchase_date &lt;=#{endDate}
+        </if>
+            <choose>
+                <when test="status!=null">
+                    and f.status = #{status}
+                </when>
+        <otherwise>
+            and f.status="upcoming"
+        </otherwise>
+            </choose>
+        </where>
+        group by MONTH(p.purchase_date)
+    </select>
+
+    <insert id="insertCustomer" parameterType="nyu.alex.dao.entity.Customer">
+        insert into customer values(#{email},#{name},#{password},#{buildingNumber},#{street},
+                                    #{city},#{livingState},#{phoneNumber},#{passportNumber},
+                                    #{passportExpiration},#{passportCountry},#{birthday});
+    </insert>
+
+    <update id="updateCustomer" parameterType="nyu.alex.dao.entity.Customer">
+        update customer set name=#{name},password=#{password},building_number=#{buildingNumber},
+                            street=#{street},city=#{city},state=#{livingState},phone_number=#{phoneNumber},
+                            passport_number=#{passportNumber},passport_expiration=#{passportExpiration},
+                            passport_country=#{passportCountry},date_of_birth=#{birthday} where email=#{email};
+    </update>
+
+</mapper>

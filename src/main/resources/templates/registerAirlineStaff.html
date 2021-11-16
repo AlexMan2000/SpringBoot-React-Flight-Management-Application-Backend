@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/jquery-3.2.1.slim.min.js" th:src="@{/webjars/jquery/3.3.1/jquery.js}"></script>
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet">
+    <script type="text/javascript" src="js/bootstrap.min.js" th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.min.js}"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.5.2/css/bootstrapValidator.min.css"/>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.5.2/js/bootstrapValidator.min.js"></script>
+</head>
+<body>
+<div th:replace="commons/bar::topbar"></div>
+    <div class="container">
+        <form id="airlineStaffForm" class="row g-5" role="form" action="/register/registerAirlineStaff" method="post">
+    <div class="form-group">
+        <label for="username" class="col-sm-10 control-label">Username</label>
+        <div class="input-group">
+            <div class="col-sm-10">
+                <input type="text" class="form-control" name="username" id="username" placeholder="Please Enter your username">
+            </div>
+
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="password" class="col-sm-10 control-label">Password</label>
+        <div class="input-group">
+            <div class="col-sm-10">
+                <input type="password" class="form-control" name="password" id="password" placeholder="Please Enter your password">
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="firstname" class="col-sm-10 control-label">Firstname</label>
+        <div class="input-group">
+            <div class="col-sm-10">
+                <input type="text" class="form-control" name="firstName" id="firstname" placeholder="Please Enter your firstname">
+            </div>
+
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="lastname" class="col-sm-10 control-label">Lastname</label>
+        <div class="input-group">
+            <div class="col-sm-10">
+                <input type="text" class="form-control" name="lastName" id="lastname" placeholder="Please Enter your lastname">
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="BirthDay" class="col-sm-10 control-label">BirthDay</label>
+        <div class="input-group">
+            <div class="col-sm-10">
+                <input type="text" class="form-control" name="birthday" id="BirthDay" placeholder="Please Enter your BirthDay">
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="airline name" class="col-sm-10 control-label">Airline Name</label>
+        <div class="input-group">
+            <div class="col-sm-10">
+                <input type="text" class="form-control" name="airlineName" id="airline name" placeholder="Please Enter your airline name">
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <button type="button" id="submit" name="submit" class="btn btn-primary">Register</button>
+            <button type="button" id="reset" name="reset" class="btn btn-primary">Reset</button>
+        </div>
+    </div>
+        </form>
+    </div>
+</body>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("#airlineStaffForm").bootstrapValidator({
+            message: 'This value is not valid',
+            live:'enabled',
+            feedbackIcons: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            submitButtons:'input[type="submit"]',
+            fields: {
+                email:{
+                    message:'This field cannot be empty',
+                    validators:{
+                        notEmpty:{
+                            message:"The email is required and cannot be empty"
+                        },
+                        emailAddress:{
+                            message:"The input is not a valid email address"
+                        },
+                        remote:{
+                            url:"/register/validateAirlineStaff",
+                            message:"customer already existed",
+                            type:"GET",
+                            data:function(){
+                                return {
+                                    "email": $("input[name='email']").val().trim()
+                                };
+                            },
+                            delay:2000
+                        }
+                    }
+                },
+                password:{
+                    validators:{
+                        notEmpty:{
+                            message:'The password field cannot be empty'
+                        },
+                        different:{
+                            field:"email",
+                            message:"Password cannot be the same as email"
+                        },
+                        regexp: {
+                            // 必须以大写字母开头
+                            regexp: /^[a-zA-Z]\w{7,15}$/,
+                            message: 'Must be within 8-16 digits and starts with alphabet'
+                        }
+                    }
+                }
+
+            }
+        })
+    });
+
+    $("#submit").on("click",function(){
+        var bootstrapValidator = $("#airlineStaffForm").data('bootstrapValidator');
+        bootstrapValidator.validate();
+        if(bootstrapValidator.isValid()){
+            var formObject = {};
+            var formArray =$("#airlineStaffForm").serializeArray();
+            $.each(formArray,function(i,item){
+                if(item.value===''){
+                    formObject[item.name] = null;
+                }else{
+                formObject[item.name] = item.value
+                ;}
+            });
+            $.ajax({
+                url:"/register/registerAirlineStaff",
+                type:"post",
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(formObject),
+                dataType: "text",
+                success:function(data){
+                    console.log("fuck you");
+                    if(data=="User Not Found!"){
+                        console.log("haha");
+                    }else if(data=="Password Error!"){
+                        console.log("xixi");
+                    }else if(data=="BookingId Error!"){
+                        console.log("pipi");
+                    }else{
+                        alert("Register Success");
+                        window.location.href="/index";
+                    }
+                },
+
+            })
+        }
+    });
+
+    $('#reset').on('click', function () {
+        var bootstrapValidator = $("#airlineStaffForm").data('bootstrapValidator');
+        bootstrapValidator.resetForm();
+        $('input').val('')
+    });
+
+
+</script>
+
+</html>

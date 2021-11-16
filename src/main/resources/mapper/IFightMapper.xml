@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="nyu.alex.dao.mapper.IFlightDao">
+
+    <resultMap id="allFlightInfo" type="Flight">
+        <id property="flightNum" column="flight_num"></id>
+        <result property="departureTime" column="departure_time"></result>
+        <result property="arrivalTime" column="arrival_time"></result>
+        <result property="price" column="price"></result>
+        <result property="status" column="status"></result>
+        <result property="airlineName" column="airline_name"></result>
+        <result property="airplaneId" column="airplane_id"></result>
+        <result property="sourceAirportName" column="departure_airport"></result>
+        <result property="destAirportName" column="arrival_airport"></result>
+
+        <association property="sourceAirport" column="departure_airport" javaType="nyu.alex.dao.entity.Airport"
+                     select="nyu.alex.dao.mapper.IAirportDao.findAirportByName"></association>
+
+        <association property="destAirport" column="arrival_airport" javaType="nyu.alex.dao.entity.Airport"
+                     select="nyu.alex.dao.mapper.IAirportDao.findAirportByName"></association>
+
+        <association property="airline" column="airline_name" javaType="nyu.alex.dao.entity.Airline"
+                     select="nyu.alex.dao.mapper.IAirlineDao.findAirlineByName">
+        </association>
+
+        <association property="airplane" column="airplane_id" javaType="nyu.alex.dao.entity.Airplane"
+                     select="nyu.alex.dao.mapper.IAirplaneDao.findAirplaneById">
+            <id property="airline" column="airline_name"></id>
+        </association>
+
+        <collection property="passengers" javaType="java.util.ArrayList" ofType="Customer">
+            <id column="email" property="email"></id>
+            <result column="name" property="name"></result>
+            <result column="building_number" property="buildingNumber"></result>
+            <result column="street" property="street"></result>
+            <result column="city" property="city"></result>
+        </collection>
+
+    </resultMap>
+
+    <resultMap id="flightInfo" type="nyu.alex.utils.dataUtils.FlightInfo">
+        <id property="status" column="status"></id>
+        <result property="flightNum" column="flight_num"></result>
+    </resultMap>
+
+    <select id="findAllFlights" resultMap="allFlightInfo">
+        select * from flight;
+    </select>
+
+    <select id="findAllFlightsWithFilters" resultMap="allFlightInfo">
+        select * from flight f
+        <where>
+            f.status = "Upcoming"
+            <if test="sourceAirportName != null">
+               and f.departure_airport = #{sourceAirportName}
+            </if>
+            <if test="destAirportName != null">
+                and f.arrival_airport = #{destAirportName}
+            </if>
+            <if test="date != null">
+                and departure_time &gt;= #{date}
+            </if>
+        </where>
+    </select>
+
+    <select id="findAllFlightStatus" resultMap="flightInfo">
+        select count(*) as flight_num, status from flight group by status;
+    </select>
+
+    <select id="findAllFlightsForAirline" parameterType="String" resultMap="allFlightInfo">
+        select f.*,c.email as email,c.name as name from flight as f
+            left join ticket as t
+                join purchases p on t.ticket_id = p.ticket_id
+        on f.flight_num = t.flight_num
+        and f.airline_name = t.airline_name
+        left join customer c on p.customer_email = c.email
+        where f.airline_name=#{airlineName}
+    </select>
+
+    <select id="findBookedSeatsNumber">
+
+    </select>
+
+
+
+</mapper>

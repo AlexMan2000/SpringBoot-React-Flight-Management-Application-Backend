@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="nyu.alex.dao.mapper.IAirlineStaffDao">
+    <resultMap id="airlineStaff" type="AirlineStaff">
+        <id property="username" column="username"></id>
+        <result property="password" column="password"></result>
+        <result property="firstName" column="first_name"></result>
+        <result property="lastName" column="last_name"></result>
+        <result property="birthday" column="date_of_birth"></result>
+        <result property="airlineName" column="airline_name"></result>
+        <result property="departureTime" column="departure_time" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"></result>
+        <result property="arrivalTime" column="arrival_time" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"></result>
+        <collection property="permissionDescription" ofType="String" resultMap="permissionType"></collection>
+    </resultMap>
+
+    <resultMap id="ticketInfo" type="nyu.alex.utils.dataUtils.TicketInfo">
+        <id property="year" column="year"></id>
+        <id property="month" column="month"></id>
+        <result property="ticketNumber" column="num_of_tickets" javaType="Integer" ></result>
+    </resultMap>
+
+    <resultMap id="permissionType" type="String">
+        <result column="permission_level"></result>
+    </resultMap>
+
+    <sql id="ifTest">
+        <if test='type=="YEAR"'>
+            where YEAR(NOW()) - YEAR(t.purchase_time)
+        </if>
+        <if test='type=="MONTH"'>
+            where MONTH(NOW()) -MONTH(t.purchase_time)
+        </if>
+        <if test='type=="DAY"'>
+            where TO_DAYS(NOW()) - TO_DAYS(t.purchase_time)
+        </if>
+    </sql>
+
+    <!--已测试-->
+    <select id="findAirlineStaffByName" resultMap="airlineStaff">
+        select a.*,b.permission_type as permission_level from airline_staff as a
+        left join permission as b on
+            a.username = b.username
+        where a.username=#{name}
+    </select>
+
+    <!-- 已测试-->
+    <select id="findAllCustomerPeriod" parameterType="java.sql.Date" resultMap="nyu.alex.dao.mapper.ICustomerDao.customer">
+        select c.*,count(*) as freq from customer c join purchases p on c.email = p.customer_email
+        <include refid="ifTest"/>
+        &lt;= #{interval}
+        group by p.customer_email order by freq desc
+    </select>
+
+    <!--已测试-->
+    <select id="findAmountOfTicketsEachPeriod" resultMap="ticketInfo">
+        select MONTH(t.purchase_date) as month,YEAR(t.purchase_date) as year,count(*) as num_of_tickets from purchases t
+        where YEAR(t.purchase_date) between #{year[0]} and #{year[1]}
+        group by MONTH(t.purchase_date),YEAR(t.purchase_date)
+    </select>
+
+
+    <!--已测试-->
+    <select id="findTopKBookingAgentEachPeriod" resultMap="nyu.alex.dao.mapper.IBookingAgentDao.bookingAgent">
+        <include refid="nyu.alex.dao.mapper.IBookingAgentDao.findCommissionTemplate">
+        </include>
+        <include refid="ifTest"/>
+        &lt;= #{interval}
+        group by b.email order by tot_comm DESC limit #{K}
+    </select>
+
+    <!-- 已测试-->
+    <insert id="insertNewAirplane" parameterType="nyu.alex.dao.entity.Airplane">
+        insert into airplane values(#{id},#{airline},#{seats})
+    </insert>
+
+    <insert id="insertNewAirport" parameterType="nyu.alex.dao.entity.Airport">
+        insert into airport values(#{airportName},#{airportCity})
+    </insert>
+
+    <!-- 已测试-->
+    <insert id="insertNewFlight" parameterType="nyu.alex.dao.entity.Flight">
+        insert into flight values
+        (#{airlineName},#{flightNumber},#{sourceAirportName},#{departureTime},#{destAirportName},#{arrivalTime},#{price]},#{status},#{airplaneId})
+    </insert>
+
+    <insert id="insertNewAirlineStaff" parameterType="nyu.alex.dao.entity.AirlineStaff">
+        insert into airline_staff values
+        (#{username},#{password},#{firstName},#{lastName},#{birthday},#{airlineName})
+    </insert>
+
+    <!-- 已测试-->
+    <update id="updateFlight" parameterType="nyu.alex.dao.entity.Flight">
+        update flight set status=#{status} where flight_num=#{flightNum} and airline_name=#{airlineName}
+    </update>
+
+    <update id="updateAirlineStaff" parameterType="nyu.alex.dao.entity.AirlineStaff">
+        update airline_staff set password=#{password},
+                                 first_name=#{firstName},last_name=#{lastName},
+                                 date_of_birth=#{birthdat},airline_name=#{airlineName} where
+                                username = #{username}
+    </update>
+
+    <delete id="deleteFlight">
+        delete from flight where flight_num = #{flightNumber} and airline_name = #{airlineName};
+    </delete>
+
+    <delete id="deleteFlights">
+        delete from flight where (flight_num,airline_name) in #{key}
+    </delete>
+
+</mapper>
