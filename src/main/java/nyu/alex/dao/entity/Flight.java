@@ -21,7 +21,6 @@ public class Flight implements Serializable {
     private String status;
     private String sourceAirportName;
     private String destAirportName;
-    private String date;
 
     private Airport sourceAirport;
     private Airport destAirport;

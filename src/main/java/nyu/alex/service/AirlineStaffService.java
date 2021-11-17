@@ -128,15 +128,30 @@ public class AirlineStaffService {
         airlineStaffDao.insertNewAirport(airport);
     }
 
+    public Airport findAirport(Airport airport){
+        return  airlineStaffDao.findAirport(airport);
+    }
+
 
     public void insertNewAirplane(Airplane airplane){
+
         airlineStaffDao.insertNewAirplane(airplane);
     }
 
+    public Airplane findAirplane(Airplane airplane){
+       return airlineStaffDao.findAirplane(airplane);
+    }
 
     public void insertNewFlight(Flight flight){
         airlineStaffDao.insertNewFlight(flight);
     }
+
+    public List<Flight> findAllFlights(){
+        return flightDao.findAllFlights();
+    }
+
+
+    public Flight findFlight(Flight flight) { return airlineStaffDao.findFlight(flight);}
 
     public void updateFlight(Flight flight ){
         airlineStaffDao.updateFlight(flight);

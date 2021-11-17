@@ -15,10 +15,7 @@ public interface IAirplaneDao {
     List<Airplane> findAllAirplanes();
 
 
-    Airplane findAirplaneById(@Param("id") String id);
-
-
-    List<Airplane> findAirplaneByAirline(@Param("airline") String airline);
+    Airplane findAirplane(@Param("id") String id,@Param("airline") String airline);
 
     void insertAirplane(Airplane airplane);
 

@@ -12,12 +12,8 @@
         select * from airplane
     </select>
 
-    <select id="findAirplaneById" parameterType="String" resultMap="allAirplaneInfo">
-        select * from airplane where airplane_id=#{id}
-    </select>
-
-    <select id="findAirplaneByAirline" parameterType="String" resultType="nyu.alex.dao.entity.Airplane">
-        select * from airplane where airline_name=#{airline}
+    <select id="findAirplane" parameterType="java.util.Map" resultMap="allAirplaneInfo">
+        select * from airplane where airplane_id=#{id} and airline_name=#{airline}
     </select>
 
 </mapper>

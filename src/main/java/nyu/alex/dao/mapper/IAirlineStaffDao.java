@@ -22,9 +22,15 @@ public interface IAirlineStaffDao {
 
     void insertNewAirplane(Airplane airplane);
 
+    Airplane findAirplane(Airplane airplane);
+
     void insertNewAirport(Airport airport);
 
+    Airport findAirport(Airport airport);
+
     void insertNewFlight(Flight flight);
+
+    Flight findFlight(Flight flight);
 
     void insertNewFlights(Flight flight);
 

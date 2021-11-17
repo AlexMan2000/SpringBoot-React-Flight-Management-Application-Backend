@@ -71,18 +71,30 @@
 
     <!-- 已测试-->
     <insert id="insertNewAirplane" parameterType="nyu.alex.dao.entity.Airplane">
-        insert into airplane values(#{id},#{airline},#{seats})
+        insert into airplane values(#{airline},#{id},#{seats})
     </insert>
+
+    <select id="findAirplane" parameterType="nyu.alex.dao.entity.Airplane" resultType="nyu.alex.dao.entity.Airplane">
+        select * from airplane where airline_name=#{airline} and airplane_id=#{id}
+    </select>
 
     <insert id="insertNewAirport" parameterType="nyu.alex.dao.entity.Airport">
         insert into airport values(#{airportName},#{airportCity})
     </insert>
 
+    <select id="findAirport" parameterType="nyu.alex.dao.entity.Airport" resultType="nyu.alex.dao.entity.Airport">
+        select airport_name as airportName,airport_city as airportCity from airport where airport_name = #{airportName}
+    </select>
+
     <!-- 已测试-->
     <insert id="insertNewFlight" parameterType="nyu.alex.dao.entity.Flight">
         insert into flight values
-        (#{airlineName},#{flightNumber},#{sourceAirportName},#{departureTime},#{destAirportName},#{arrivalTime},#{price]},#{status},#{airplaneId})
+        (#{airlineName},#{flightNum},#{sourceAirportName},#{departureTime},#{destAirportName},#{arrivalTime},#{price},#{status},#{airplaneId})
     </insert>
+
+    <select id="findFlight" parameterType="nyu.alex.dao.entity.Flight" resultType="nyu.alex.dao.entity.Flight">
+        select * from flight where airline_name = #{airlineName} and flight_num = #{flightNum}
+    </select>
 
     <insert id="insertNewAirlineStaff" parameterType="nyu.alex.dao.entity.AirlineStaff">
         insert into airline_staff values

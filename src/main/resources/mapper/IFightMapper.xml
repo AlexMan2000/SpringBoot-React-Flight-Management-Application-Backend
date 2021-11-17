@@ -24,9 +24,10 @@
                      select="nyu.alex.dao.mapper.IAirlineDao.findAirlineByName">
         </association>
 
-        <association property="airplane" column="airplane_id" javaType="nyu.alex.dao.entity.Airplane"
-                     select="nyu.alex.dao.mapper.IAirplaneDao.findAirplaneById">
+        <association property="airplane" column="{airplane_id=airplane_id,airline_name=airline_name}" javaType="nyu.alex.dao.entity.Airplane"
+                     select="nyu.alex.dao.mapper.IAirplaneDao.findAirplane">
             <id property="airline" column="airline_name"></id>
+            <id property="id" column="airplane_id"></id>
         </association>
 
         <collection property="passengers" javaType="java.util.ArrayList" ofType="Customer">
