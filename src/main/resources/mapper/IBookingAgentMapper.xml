@@ -3,6 +3,12 @@
 
 <mapper namespace="nyu.alex.dao.mapper.IBookingAgentDao">
 
+    <resultMap id="ticket" type="Ticket">
+        <id property="ticket_id" column="ticket_id"></id>
+        <result property="airlineName" column="airline_name"></result>
+        <result property="flightNum" column="flight_num"></result>
+    </resultMap>
+
     <resultMap id="bookingAgent" type="BookingAgent">
         <id property="email" column="email"></id>
         <result property="password" column="password"></result>
@@ -32,6 +38,21 @@
         and f.airline_name = t.airline_name
     </sql>
 
+    <select id="findMyFlights" resultMap="nyu.alex.dao.mapper.IFlightDao.allFlightInfo">
+
+
+
+    </select>
+
+    <insert id="bookTicket">
+        insert into purchases values(#{ticketNum},#{email},#{bookingAgentId},#{purchaseDate})
+
+    </insert>
+
+    <select id="findAllTicketInfo" resultMap="ticket">
+        select t.* from ticket t where airline_name=#{airlineName} and flight_num = #{flightNum}
+        and t.ticket_id not in (select p.ticket_id from purchases p)
+    </select>
 
     <select id="findCommissionInfo" resultMap="bookingAgent">
         <include refid="findCommissionTemplate"/>

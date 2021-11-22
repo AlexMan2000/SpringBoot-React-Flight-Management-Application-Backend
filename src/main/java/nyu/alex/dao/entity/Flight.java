@@ -28,4 +28,6 @@ public class Flight implements Serializable {
     private Airplane airplane;
     private List<Customer> passengers;
     private Integer bookedSeatNumber;
+
+    private boolean isFull;
 }

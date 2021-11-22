@@ -10,5 +10,5 @@ import java.io.Serializable;
 public class Ticket implements Serializable {
     private String ticket_id;
     private String airlineName;
-    private Integer flightNum;
+    private String flightNum;
 }

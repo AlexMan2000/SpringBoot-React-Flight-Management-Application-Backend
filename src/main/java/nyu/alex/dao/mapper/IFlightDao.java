@@ -18,6 +18,8 @@ public interface IFlightDao {
      */
     List<Flight> findAllFlights();
 
+    List<Flight> findAllAvailableFlights(Flight flight);
+
     List<Flight> findAllFlightsWithFilters(Flight flight);
 
     List<FlightInfo> findAllFlightStatus();
