@@ -9,6 +9,8 @@ import nyu.alex.dao.mapper.IAirplaneDao;
 import nyu.alex.dao.mapper.IAirportDao;
 import nyu.alex.dao.mapper.IFlightDao;
 import nyu.alex.service.AirlineStaffService;
+import nyu.alex.utils.dataUtils.DataRow;
+import org.apache.ibatis.annotations.Delete;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -39,6 +41,35 @@ public class AirlineStaffController {
 
         return results;
     }
+
+    @PostMapping("/findAllFilteredFlights")
+    @ResponseBody
+    public Map<String,Object> findAllFilteredFlights(@RequestBody Flight flight){
+        List<Flight> allFlights = airlineStaffService.findAllFilteredFlights(flight);
+        Map<String,Object> results = new HashMap<>();
+        results.put("records",allFlights);
+        results.put("total",allFlights.size());
+        results.put("success",true);
+
+        return results;
+    }
+
+    @GetMapping("/getTopK")
+    @ResponseBody
+    public List<DataRow> findTopK(@RequestParam("type") String type,
+                                  @RequestParam(value = "past",required = false) String past,
+                                  @RequestParam("K") String K){
+        if(type.equals("sales")){
+            if(past.equals("month")){
+            return airlineStaffService.findTopKSales(1,K);
+            }else{
+                return airlineStaffService.findTopKSales(12,K);
+            }
+        }else{
+            return airlineStaffService.findTopKCommission(K);
+        }
+    }
+
 
     @PostMapping("/addNewFlight")
     @ResponseBody
@@ -88,6 +119,10 @@ public class AirlineStaffController {
         return "success";
     }
 
+    /**
+     * 表单提交校验
+     */
+
     @PostMapping("/validateNewAirplane")
     @ResponseBody
     public String validateNewAirplane(@RequestBody Airplane airplane){
@@ -99,18 +134,11 @@ public class AirlineStaffController {
     }
 
 
-    /**
-     * 表单提交校验
-     */
-    @PostMapping("/validateAirplane")
-    public void validateAirplaneForm(HttpServletRequest request){
-
+    @PostMapping("/deleteFlight")
+    @ResponseBody
+    public String deleteFlight(@RequestParam("flightNum") String flightNum,@RequestParam("airlineName") String airlineName){
+        airlineStaffService.deleteFlight(flightNum,airlineName);
+        return "success";
     }
-
-    @PostMapping("/validateFlight")
-    public void validateFlightForm(HttpServletRequest request){
-
-    }
-
 
 }

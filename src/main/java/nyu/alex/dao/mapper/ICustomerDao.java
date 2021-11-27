@@ -5,6 +5,7 @@ import nyu.alex.dao.entity.Flight;
 import nyu.alex.utils.dataUtils.DataRow;
 import nyu.alex.utils.dataUtils.TicketInfo;
 import nyu.alex.utils.dataUtils.TrackSpendingUtils;
+import nyu.alex.utils.serviceUtils.PurchaseUtils;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Date;
@@ -17,7 +18,7 @@ public interface ICustomerDao {
     //用于注册校验
     Customer findCustomerByEmail(String emailAddress);
 
-    void bookTicket();
+    Map<String,Object> bookTicket(Map<String,Object> purchaseUtils);
 
     Customer findAllFlightsWithCustomer(@Param("email") String email, @Param("airlineName") String airlineName);
 

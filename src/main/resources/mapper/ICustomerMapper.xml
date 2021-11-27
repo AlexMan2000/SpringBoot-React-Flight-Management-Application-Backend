@@ -41,13 +41,13 @@
 
     <resultMap id="ticketInfo" type="nyu.alex.utils.dataUtils.TicketInfo">
         <id property="ticketId" column="ticket_id"></id>
-        <result property="flightNumber" column="flight_num"></result>
-        <result property="departAirportName" column="departAirport"></result>
-        <result property="arrivalAirportName" column="arrivalAirport"></result>
+        <result property="flightNum" column="flight_num"></result>
+        <result property="sourceAirportName" column="departAirport"></result>
+        <result property="destAirportName" column="arrivalAirport"></result>
         <result property="departureTime" column="departureTime"></result>
         <result property="arrivalTime" column="arrivalTime"></result>
         <result property="status" column="status"></result>
-
+        <result property="price" column="price"></result>
     </resultMap>
 
     <select id="findCustomerByEmail" parameterType="String" resultMap="customer">
@@ -105,7 +105,8 @@
                f.arrival_airport as arrivalAirport,
                f.departure_time as departureTime,
                f.arrival_time as arrivalTime,
-               f.status as status
+               f.status as status,
+               f.price as price
                from purchases p
                    join ticket t on p.ticket_id = t.ticket_id
                    join flight f on t.airline_name = f.airline_name and t.flight_num = f.flight_num
@@ -120,6 +121,9 @@
         join flight f on t.flight_num = f.flight_num
         <where>
          p.customer_email=#{email}
+            <if test="startDate == null and endDate ==null">
+                and MONTH(NOW()) - MONTH(p.purchase_date) &lt;=6
+            </if>
         <if test="startDate!=null">
             and p.purchase_date &gt;= #{startDate}
         </if>
@@ -150,5 +154,12 @@
                             passport_number=#{passportNumber},passport_expiration=#{passportExpiration},
                             passport_country=#{passportCountry},date_of_birth=#{birthday} where email=#{email};
     </update>
+
+    <select id="bookTicket" statementType="CALLABLE"  parameterType="java.util.HashMap" resultType="java.util.Map" >
+        {
+            call purchaseTicket(#{ticketNum,mode=OUT,jdbcType=VARCHAR},#{purchaseDate,mode=OUT,jdbcType=DATE},
+                                #{commissionFee,mode=OUT,jdbcType=NUMERIC},#{flightNum,mode=IN},#{airlineName,mode=IN},#{email,mode=IN},#{bookingAgentId,mode=IN})
+            }
+    </select>
 
 </mapper>

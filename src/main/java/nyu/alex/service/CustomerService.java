@@ -6,6 +6,7 @@ import nyu.alex.dao.mapper.ICustomerDao;
 import nyu.alex.utils.dataUtils.DataRow;
 import nyu.alex.utils.dataUtils.TicketInfo;
 import nyu.alex.utils.dataUtils.TrackSpendingUtils;
+import nyu.alex.utils.serviceUtils.PurchaseUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -13,6 +14,7 @@ import javax.annotation.Resource;
 import java.util.Date;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CustomerService {
@@ -38,10 +40,9 @@ public class CustomerService {
         return flights;
     }
 
-    public void purchaseTicket() {
-
-
-
+    public Map<String,Object> purchaseTicket(Map<String,Object> purchaseForm) {
+        Map<String, Object> results = customerDao.bookTicket(purchaseForm);
+        return results;
     }
 
     public List<DataRow> trackSpending(TrackSpendingUtils track){

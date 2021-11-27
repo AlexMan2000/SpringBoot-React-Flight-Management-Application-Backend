@@ -34,6 +34,11 @@ public class BaseService {
 
     }
 
+    public List<Flight> findAllFlights(){
+        List<Flight> results = flightDao.findAllFlights();
+        return results;
+    }
+
     public List<Airport> searchAirports(){
         return airportDao.findAllAirports();
     }

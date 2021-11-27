@@ -19,9 +19,9 @@ spring:
   mvc:
     format:
       date-time: yyyy-MM-dd HH:mm:ss
-#logging:
-#  level:
-#    nyu.alex.dao.mapper : debug
+logging:
+  level:
+    nyu.alex.dao.mapper : debug
 mybatis:
   type-aliases-package: nyu.alex.dao.entity #配置结果集映射实体类
   mapper-locations: classpath:/mapper/*.xml  #配置sql语句Mapper

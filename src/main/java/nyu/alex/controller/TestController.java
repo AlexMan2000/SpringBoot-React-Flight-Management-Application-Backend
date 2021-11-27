@@ -72,13 +72,13 @@ public class TestController {
         return "success";
     }
 
-    @GetMapping("/commission")
-    @ResponseBody
-    public String testFindCommissionInfo(){
-        BookingAgent bookingAgent = bookingAgentDao.findCommissionInfo("cathayEmp01@csair.com",100);
-        System.out.println(bookingAgent);
-        return "sucess";
-    }
+//    @GetMapping("/commission")
+//    @ResponseBody
+//    public String testFindCommissionInfo(){
+//        BookingAgent bookingAgent = bookingAgentDao.findCommissionInfo("cathayEmp01@csair.com",100);
+//        System.out.println(bookingAgent);
+//        return "sucess";
+//    }
 
     @GetMapping("/flightsWithCustomer")
     @ResponseBody

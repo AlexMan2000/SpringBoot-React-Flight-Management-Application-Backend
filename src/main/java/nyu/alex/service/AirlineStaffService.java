@@ -4,6 +4,7 @@ import nyu.alex.dao.entity.*;
 import nyu.alex.dao.mapper.IAirlineStaffDao;
 import nyu.alex.dao.mapper.ICustomerDao;
 import nyu.alex.dao.mapper.IFlightDao;
+import nyu.alex.utils.dataUtils.DataRow;
 import nyu.alex.utils.dataUtils.FlightInfo;
 import nyu.alex.utils.dataUtils.TicketInfo;
 import org.springframework.stereotype.Service;
@@ -150,6 +151,10 @@ public class AirlineStaffService {
         return flightDao.findAllFlights();
     }
 
+    public List<Flight> findAllFilteredFlights(Flight flight){
+        return flightDao.findAllFlightsFiltered(flight);
+    }
+
 
     public Flight findFlight(Flight flight) { return airlineStaffDao.findFlight(flight);}
 
@@ -162,8 +167,8 @@ public class AirlineStaffService {
     }
 
 
-    public void deleteFlight(Flight flight ){
-
+    public void deleteFlight(String flightNum,String airlineName){
+        airlineStaffDao.deleteFlight(flightNum,airlineName);
     }
 
     public void deleteFlights(Flight flight ){
@@ -171,5 +176,12 @@ public class AirlineStaffService {
 
     }
 
+    public List<DataRow> findTopKSales(Integer past,String K){
+        return airlineStaffDao.findTopKSales(past,K);
+    }
+
+    public List<DataRow> findTopKCommission(String K){
+        return airlineStaffDao.findTopKCommission(K);
+    }
 
 }

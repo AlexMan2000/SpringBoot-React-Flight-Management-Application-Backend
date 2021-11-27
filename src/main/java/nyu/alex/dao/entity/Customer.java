@@ -25,4 +25,6 @@ public class Customer implements Serializable {
     private Date birthday;
 
     List<Flight> takenFlights;
+    private Integer ticketsFromAgent;
+    private Float totalCommission;
 }

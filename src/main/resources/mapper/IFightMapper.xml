@@ -13,17 +13,20 @@
         <result property="price" column="price"></result>
         <result property="status" column="status"></result>
         <result property="isFull" column="isfull"></result>
+        <result property="remainingSeats" column="remaining_seats"></result>
         <result property="airplaneId" column="airplane_id"></result>
+        <result property="ticketId" column="ticket_id"></result>
+        <result property="customerEmail" column="customer_email"></result>
     </resultMap>
 
 
     <resultMap id="allFlightInfo" type="Flight">
         <id property="flightNum" column="flight_num"></id>
+        <id property="airlineName" column="airline_name"></id>
         <result property="departureTime" column="departure_time"></result>
         <result property="arrivalTime" column="arrival_time"></result>
         <result property="price" column="price"></result>
         <result property="status" column="status"></result>
-        <result property="airlineName" column="airline_name"></result>
         <result property="airplaneId" column="airplane_id"></result>
         <result property="sourceAirportName" column="departure_airport"></result>
         <result property="destAirportName" column="arrival_airport"></result>
@@ -38,13 +41,13 @@
                      select="nyu.alex.dao.mapper.IAirlineDao.findAirlineByName">
         </association>
 
-        <association property="airplane" column="{airplane_id=airplane_id,airline_name=airline_name}" javaType="nyu.alex.dao.entity.Airplane"
+        <association property="airplane" column="{id=airplane_id,airline=airline_name}" javaType="nyu.alex.dao.entity.Airplane"
                      select="nyu.alex.dao.mapper.IAirplaneDao.findAirplane">
             <id property="airline" column="airline_name"></id>
             <id property="id" column="airplane_id"></id>
         </association>
 
-        <collection property="passengers" javaType="java.util.ArrayList" ofType="Customer">
+        <collection property="passengers" column="{airlineName = airline_name,flightNum = flight_num}" javaType="java.util.ArrayList" ofType="Customer" select="findCustomersOnFlight">
             <id column="email" property="email"></id>
             <result column="name" property="name"></result>
             <result column="building_number" property="buildingNumber"></result>
@@ -60,13 +63,25 @@
     </resultMap>
 
     <select id="findAllFlights" resultMap="allFlightInfo">
-        select * from flight;
+        select * from flight f where f.status = "upcoming"
     </select>
 
+    <select id="findAllFlightsAirlineStaffDefault" resultMap="allFlightInfo">
+        select * from flight f where f.status = "upcoming" and TO_DAYS(f.departure_time )-TO_DAYS(NOW()) &lt;=30
+    </select>
+
+    <select id="findCustomersOnFlight" resultMap="nyu.alex.dao.mapper.IAirlineStaffDao.customerLite">
+        select distinct c.* from customer c join purchases p on c.email = p.customer_email
+        join ticket t on p.ticket_id = t.ticket_id
+        join flight f on t.airline_name = f.airline_name and t.flight_num = f.flight_num
+        where f.airline_name = #{airlineName} and f.flight_num=#{flightNum}
+    </select>
+
+    <!-- 所有的upcoming的航班，带过滤-->
     <select id="findAllFlightsWithFilters" resultMap="allFlightInfo">
         select * from flight f
         <where>
-            f.status = "Upcoming"
+            f.status = "upcoming"
             <if test="sourceAirportName != null">
                and f.departure_airport = #{sourceAirportName}
             </if>
@@ -75,6 +90,40 @@
             </if>
             <if test="departureTime != null">
                 and departure_time &gt;= #{departureTime}
+            </if>
+            <if test="arrivalTime != null">
+                and arrival_time &gt;= #{arrivalTime}
+            </if>
+            <if test="flightNum != null">
+                and flight_num = #{flightNum}
+            </if>
+            <if test="airlineName != null">
+                and airline_name = #{airlineName}
+            </if>
+        </where>
+    </select>
+
+    <!-- 所有的航班，包括不是upcoming 的航班，带过滤-->
+    <select id="findAllFlightsFiltered" resultMap="allFlightInfo">
+        select * from flight f
+        <where>
+            <if test="sourceAirportName != null">
+                and f.departure_airport = #{sourceAirportName}
+            </if>
+            <if test="destAirportName != null">
+                and f.arrival_airport = #{destAirportName}
+            </if>
+            <if test="departureTime != null">
+                and departure_time &gt;= #{departureTime}
+            </if>
+            <if test="arrivalTime != null">
+                and arrival_time &gt;= #{arrivalTime}
+            </if>
+            <if test="flightNum != null">
+                and flight_num = #{flightNum}
+            </if>
+            <if test="airlineName != null">
+                and airline_name = #{airlineName}
             </if>
         </where>
     </select>
@@ -99,7 +148,7 @@
                 false
             else
                 true
-            END
+            END, a.seats - count(p.ticket_id) as remaining_seats
         from flight f
             left join ticket t on f.airline_name = t.airline_name and f.flight_num = t.flight_num
             left join purchases p on t.ticket_id = p.ticket_id
@@ -120,6 +169,8 @@
 
     </select>
 
-
+    <delete id="deleteFlight">
+        delete from flight where flight_num = #{flightNum} and airline_name = #{airlineName}
+    </delete>
 
 </mapper>

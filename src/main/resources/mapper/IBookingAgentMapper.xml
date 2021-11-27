@@ -9,6 +9,12 @@
         <result property="flightNum" column="flight_num"></result>
     </resultMap>
 
+    <resultMap id="customer" type="Customer">
+        <id property="email" column="email"></id>
+        <result property="ticketsFromAgent" column="ticketsFromAgent"></result>
+        <result property="totalCommission" column="totalCommission"></result>
+    </resultMap>
+
     <resultMap id="bookingAgent" type="BookingAgent">
         <id property="email" column="email"></id>
         <result property="password" column="password"></result>
@@ -29,25 +35,49 @@
     </select>
 
     <sql id="findCommissionTemplate">
-        select count(*) as comm_num,avg(price)*1.1 as avg_comm,sum(price)*1.1 as tot_comm,b.email as email,b.password as password
-        from booking_agent as b
-        left join ticket as t
-        on t.booking_agent_id = b.booking_agent_id
-        left join flight as f
+        select count(*) as comm_num,avg(price)*0.1 as avg_comm,sum(price)*0.1 as tot_comm,b.email as email,b.password as password
+        from booking_agent b
+        left join purchases p
+        on p.booking_agent_id = b.booking_agent_id
+        left join ticket t
+        on t.ticket_id = p.ticket_id
+        left join flight f
         on f.flight_num = t.flight_num
         and f.airline_name = t.airline_name
     </sql>
 
-    <select id="findMyFlights" resultMap="nyu.alex.dao.mapper.IFlightDao.allFlightInfo">
+    <select id="findMyFlights" resultMap="nyu.alex.dao.mapper.IFlightDao.allFlightInfoLite">
 
-
+        select * from flight f
+        join ticket t on f.airline_name = t.airline_name and f.flight_num = t.flight_num
+        join purchases p on p.ticket_id = t.ticket_id
+        <where>
+            <if test="default == true">
+                and f.status = "Upcoming"
+            </if>
+            <if test="sourceAirportName != null">
+                and f.departure_airport = #{sourceAirportName}
+            </if>
+            <if test="destAirportName != null">
+                and f.arrival_airport = #{destAirportName}
+            </if>
+            <if test="startDate != null">
+                and f.departure_time &gt;= #{startDate}
+            </if>
+            <if test="endDate != null">
+                and f.departure_time &lt;= #{endDate}
+            </if>
+            and p.booking_agent_id is not null
+        </where>
 
     </select>
 
-    <insert id="bookTicket">
-        insert into purchases values(#{ticketNum},#{email},#{bookingAgentId},#{purchaseDate})
-
-    </insert>
+    <select id="bookTicket" statementType="CALLABLE"  parameterType="java.util.HashMap" resultType="java.util.Map" >
+        {
+            call purchaseTicket(#{ticketNum,mode=OUT,jdbcType=VARCHAR},#{purchaseDate,mode=OUT,jdbcType=DATE},
+            #{commissionFee,mode=OUT,jdbcType=NUMERIC},#{flightNum,mode=IN},#{airlineName,mode=IN},#{email,mode=IN},#{bookingAgentId,mode=IN})
+        }
+    </select>
 
     <select id="findAllTicketInfo" resultMap="ticket">
         select t.* from ticket t where airline_name=#{airlineName} and flight_num = #{flightNum}
@@ -56,9 +86,51 @@
 
     <select id="findCommissionInfo" resultMap="bookingAgent">
         <include refid="findCommissionTemplate"/>
-        where b.email = #{email} and
-        TO_DAYS(NOW()) - TO_DAYS(purchase_time) &lt;= #{interval}
-        group by b.email order by tot_comm
+        <where>
+            b.email = #{email}
+            <if test="startDate==null || endDate==null">
+                and TO_DAYS(NOW()) - TO_DAYS(p.purchase_date) &lt;= 30
+            </if>
+            <if test="startDate!=null">
+                and p.purchase_date &gt;= #{startDate}
+                and p.purchase_date &lt;= #{endDate}
+            </if>
+            group by b.email order by tot_comm
+        </where>
+    </select>
+
+    <select id="findTopKCommission" resultMap="customer">
+        select c.email,sum(f.price)*0.9 as totalCommission  from customer c
+        left join purchases p
+        on p.customer_email = c.email
+        left join ticket t
+        on t.ticket_id = p.ticket_id
+        left join flight f
+        on f.flight_num = t.flight_num
+        and f.airline_name = t.airline_name
+        <where>
+            p.booking_agent_id is not null
+            and YEAR(p.purchase_date)-YEAR(NOW()) &lt;= 1
+            group by c.email
+            order by totalCommission
+            <if test="K !=null">
+                limit #{K}
+            </if>
+        </where>
+
+    </select>
+
+    <select id="findTopKTickets" resultMap="customer">
+        select c.email,count(distinct ticket_id) as ticketsFromAgent from customer c
+        left join purchases p on p.customer_email = c.email
+        <where> p.booking_agent_id is not null
+            and MONTH(p.purchase_date)-MONTH(NOW()) &lt;= 6
+            group by c.email
+            order by ticketsFromAgent
+            <if test="K!=null">
+                limit #{K}
+            </if></where>
+
     </select>
 
     <insert id="insertBookingAgent" parameterType="nyu.alex.dao.entity.BookingAgent">

@@ -20,7 +20,10 @@ public interface IFlightDao {
 
     List<Flight> findAllAvailableFlights(Flight flight);
 
+    //带upcoming约束
     List<Flight> findAllFlightsWithFilters(Flight flight);
+    //不带upcoming约束
+    List<Flight> findAllFlightsFiltered(Flight flight);
 
     List<FlightInfo> findAllFlightStatus();
 

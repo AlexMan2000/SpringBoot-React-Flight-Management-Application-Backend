@@ -7,6 +7,7 @@ import nyu.alex.service.CustomerService;
 import nyu.alex.utils.dataUtils.DataRow;
 import nyu.alex.utils.dataUtils.TicketInfo;
 import nyu.alex.utils.dataUtils.TrackSpendingUtils;
+import nyu.alex.utils.serviceUtils.PurchaseUtils;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -63,16 +64,23 @@ public class CustomerController {
             parsedEndDate = df.parse(endDate);
         }
         List<TicketInfo> flights = customerService.findMyFilteredFlights(email,sourceAirport,destAirport,parsedStartDate,parsedEndDate,status);
+        System.out.println(flights);
         return flights;
     }
 
-    @GetMapping("/purchaseFlight")
+    @PostMapping("/purchaseTicket")
     @ResponseBody
-    public Map<String,String> purchaseTicket(){
-        Map<String,String> resultMap = new HashMap<>();
-
-
-        return resultMap;
+    public Map<String,Object> purchaseTicket(@RequestBody PurchaseUtils purchaseForm){
+        System.out.println(purchaseForm);
+        Map<String,Object> returnValues = new HashMap<>();
+        returnValues.put("ticketNum","");
+        returnValues.put("purchaseDate","");
+        returnValues.put("flightNum",purchaseForm.getFlightNum());
+        returnValues.put("airlineName",purchaseForm.getAirlineName());
+        returnValues.put("email",purchaseForm.getEmail());
+//        returnValues.put("bookingAgentId",purchaseForm.getBookingAgentId());
+        customerService.purchaseTicket(returnValues);
+        return returnValues;
     }
 
 

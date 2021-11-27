@@ -10,6 +10,7 @@ import java.util.Map;
 @Data
 public class DataRow {
 
+    private String email;
     private Integer timestamp;
     private Float value;
 

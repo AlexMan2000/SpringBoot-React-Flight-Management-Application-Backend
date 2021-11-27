@@ -30,4 +30,7 @@ public class Flight implements Serializable {
     private Integer bookedSeatNumber;
 
     private boolean isFull;
+    private Integer remainingSeats;
+    private String customerEmail;
+    private String ticketId;
 }

@@ -2,6 +2,21 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 
 <mapper namespace="nyu.alex.dao.mapper.IAirlineStaffDao">
+    <resultMap id="customerLite" type="Customer">
+        <id property="email" column="email"></id>
+        <result property="name" column="name"></result>
+        <result property="password" column="password"></result>
+        <result property="buildingNumber" column="building_number"></result>
+        <result property="street" column="street"></result>
+        <result property="city" column="city"></result>
+        <result property="livingState" column="state"></result>
+        <result property="phoneNumber" column="phone_number"></result>
+        <result property="passportNumber" column="passport_number"></result>
+        <result property="passportExpiration" column="passport_expiration"></result>
+        <result property="passportCountry" column="passport_country"></result>
+        <result property="birthday" column="date_of_birth"></result>
+    </resultMap>
+
     <resultMap id="airlineStaff" type="AirlineStaff">
         <id property="username" column="username"></id>
         <result property="password" column="password"></result>
@@ -36,11 +51,13 @@
         </if>
     </sql>
 
+
+
     <!--已测试-->
     <select id="findAirlineStaffByName" resultMap="airlineStaff">
-        select a.*,b.permission_type as permission_level from airline_staff as a
-        left join permission as b on
-            a.username = b.username
+        select a.*,p.permission_type as permission_level from airline_staff as a
+        left join permission as p on
+            a.username = p.username
         where a.username=#{name}
     </select>
 
@@ -121,4 +138,28 @@
         delete from flight where (flight_num,airline_name) in #{key}
     </delete>
 
+    <select id="findTopKSales" resultType="nyu.alex.utils.dataUtils.DataRow">
+        select b.email as email,sum(f.price)*1.1 as value from booking_agent b left join purchases p on b.booking_agent_id = p.booking_agent_id
+        left join ticket t on p.ticket_id = t.ticket_id
+        left join flight f on t.airline_name = f.airline_name and t.flight_num = f.flight_num
+        <where>
+            p.booking_agent_id is not null
+            and MONTH(NOW()) - MONTH(p.purchase_date) &lt;= #{past}
+            group by b.email
+            order by value desc
+        </where>
+    </select>
+
+
+    <select id="findTopKCommission" resultType="nyu.alex.utils.dataUtils.DataRow">
+        select b.email as email,sum(f.price)*0.1 as value from booking_agent b left join purchases p on b.booking_agent_id = p.booking_agent_id
+        left join ticket t on p.ticket_id = t.ticket_id
+        left join flight f on t.airline_name = f.airline_name and t.flight_num = f.flight_num
+        <where>
+            p.booking_agent_id is not null
+            and MONTH(NOW()) - MONTH(p.purchase_date) &lt;= 12
+            group by b.email
+            order by value desc
+        </where>
+    </select>
 </mapper>

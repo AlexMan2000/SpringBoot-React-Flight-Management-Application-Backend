@@ -9,9 +9,7 @@ import java.sql.Date;
 
 public class TrackSpendingUtils {
 
-    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date startDate;
-    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date endDate;
     private String email;
     private String status;

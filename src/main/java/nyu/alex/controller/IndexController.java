@@ -54,17 +54,6 @@ public class IndexController {
         return "registerBookingAgent";
     }
 
-    @GetMapping("/flight")
-    public String showFlights(Model model){
-        List<Flight> results = flightDao.findAllFlights();
-        for(Flight flight:results){
-            System.out.println(flight);
-        }
-        model.addAttribute("flights",results);
-        model.addAttribute("hello","shit");
-        return "index";
-    }
-
     @GetMapping("")
     public String showUpcomingFlight(Model model){
         System.out.println("知道啦");
@@ -86,6 +75,12 @@ public class IndexController {
 //        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 //        Date format = df.parse(date);
         return baseService.searchFlights(flight);
+    }
+
+    @GetMapping("/findAllFlights")
+    @ResponseBody
+    public List<Flight> findAllFlights(){
+        return baseService.findAllFlights();
     }
 
     @GetMapping("/searchAirports")

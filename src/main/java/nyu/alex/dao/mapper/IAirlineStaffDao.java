@@ -1,6 +1,7 @@
 package nyu.alex.dao.mapper;
 
 import nyu.alex.dao.entity.*;
+import nyu.alex.utils.dataUtils.DataRow;
 import nyu.alex.utils.dataUtils.TicketInfo;
 import org.apache.ibatis.annotations.Param;
 
@@ -15,6 +16,7 @@ public interface IAirlineStaffDao {
     //需要修改
     List<Customer> findAllCustomerPeriod(@Param("type") String timespanType, @Param("interval")Integer timespan);
 
+    List<Customer> findCustomersOnFlight(@Param("airlineName") String airlineName,@Param("flightNum") String flightNum);
     //需要修改
     List<BookingAgent> findTopKBookingAgentEachPeriod(@Param("type")String timespanType,@Param("K")Integer K,@Param("interval")Integer timespan);
 
@@ -45,5 +47,9 @@ public interface IAirlineStaffDao {
     void deleteFlights(@Param("key")Map<String, String> mapping) ;
 
     void updateAirlineStaff(AirlineStaff airlineStaff);
+
+    List<DataRow> findTopKSales(@Param("past") Integer past,@Param("K") String K);
+
+    List<DataRow> findTopKCommission(@Param("K") String K);
 
 }
