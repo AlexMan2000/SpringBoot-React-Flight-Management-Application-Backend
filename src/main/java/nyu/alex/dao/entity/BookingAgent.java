@@ -14,6 +14,7 @@ public class BookingAgent implements Serializable {
     private Integer bookingAgentId;
 
     private Float commissionFees;
+    private Float totalSales;
     private Float averageCommissionFees;
     private Integer ticketBooked;
 

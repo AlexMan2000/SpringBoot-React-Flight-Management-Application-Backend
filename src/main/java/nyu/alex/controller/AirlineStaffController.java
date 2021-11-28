@@ -1,9 +1,6 @@
 package nyu.alex.controller;
 
-import nyu.alex.dao.entity.AirlineStaff;
-import nyu.alex.dao.entity.Airplane;
-import nyu.alex.dao.entity.Airport;
-import nyu.alex.dao.entity.Flight;
+import nyu.alex.dao.entity.*;
 import nyu.alex.dao.mapper.IAirlineStaffDao;
 import nyu.alex.dao.mapper.IAirplaneDao;
 import nyu.alex.dao.mapper.IAirportDao;
@@ -11,6 +8,7 @@ import nyu.alex.dao.mapper.IFlightDao;
 import nyu.alex.service.AirlineStaffService;
 import nyu.alex.utils.dataUtils.DataRow;
 import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -54,11 +52,42 @@ public class AirlineStaffController {
         return results;
     }
 
+    // For the airline company te user works for
+    @GetMapping("/viewReports")
+    @ResponseBody
+    public List<DataRow> findViewReports(@RequestParam("airlineName") String airlineName){
+        return airlineStaffService.findViewReport(airlineName);
+    }
+
+    /**
+     * Find top destinations
+     * @param past
+     * @return
+     */
+    @GetMapping("/topDestinations")
+    @ResponseBody
+    public List<DataRow> findTopDestinations(@RequestParam("past") String past){
+        return airlineStaffService.findTopDestination(past);
+    }
+
+    @GetMapping("/revenueComparison")
+    @ResponseBody
+    public List<DataRow> findRevenueInfo(@RequestParam("past") String past,@RequestParam("airlineName") String airlineName){
+        return airlineStaffService.findRevenueInfo(past,airlineName);
+    }
+
+    /**
+     * Find top K bookingAgent based on sales or commission.
+     * @param type
+     * @param past
+     * @param K
+     * @return
+     */
     @GetMapping("/getTopK")
     @ResponseBody
     public List<DataRow> findTopK(@RequestParam("type") String type,
                                   @RequestParam(value = "past",required = false) String past,
-                                  @RequestParam("K") String K){
+                                  @RequestParam("K") Integer K){
         if(type.equals("sales")){
             if(past.equals("month")){
             return airlineStaffService.findTopKSales(1,K);
@@ -70,6 +99,19 @@ public class AirlineStaffController {
         }
     }
 
+    /**
+     * View Frequent Customers
+     * @param K
+     * @param airlineName
+     * @return
+     */
+    @GetMapping("/getTopKCustomers")
+    @ResponseBody
+    public List<Customer> getTopKCustomersWithFlights(@RequestParam("K") String K,
+                                                      @RequestParam(value="airlineName",required=false) String airlineName){
+
+        return airlineStaffService.findTopKFreqCustomers(K,airlineName);
+    }
 
     @PostMapping("/addNewFlight")
     @ResponseBody
@@ -82,6 +124,11 @@ public class AirlineStaffController {
         return "success";
     }
 
+    /**
+     * Update the status of the flight.
+     * @param flight
+     * @return
+     */
     @PostMapping("/updateStatus")
     @ResponseBody
     public String updateFlight(@RequestBody Flight flight){
@@ -120,9 +167,10 @@ public class AirlineStaffController {
     }
 
     /**
-     * 表单提交校验
+     * Check if the airplane model exists.
+     * @param airplane
+     * @return
      */
-
     @PostMapping("/validateNewAirplane")
     @ResponseBody
     public String validateNewAirplane(@RequestBody Airplane airplane){
@@ -133,7 +181,12 @@ public class AirlineStaffController {
         return "success";
     }
 
-
+    /**
+     * Delete the flight.
+     * @param flightNum
+     * @param airlineName
+     * @return
+     */
     @PostMapping("/deleteFlight")
     @ResponseBody
     public String deleteFlight(@RequestParam("flightNum") String flightNum,@RequestParam("airlineName") String airlineName){

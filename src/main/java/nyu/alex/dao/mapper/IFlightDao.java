@@ -22,9 +22,11 @@ public interface IFlightDao {
 
     //带upcoming约束
     List<Flight> findAllFlightsWithFilters(Flight flight);
+
     //不带upcoming约束
     List<Flight> findAllFlightsFiltered(Flight flight);
 
+    //Deprecated
     List<FlightInfo> findAllFlightStatus();
 
     List<Flight> findAllFlightsForAirline(@Param("airlineName") String airline_name);

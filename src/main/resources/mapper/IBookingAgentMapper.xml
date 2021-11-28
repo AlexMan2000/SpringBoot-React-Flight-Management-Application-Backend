@@ -20,6 +20,7 @@
         <result property="password" column="password"></result>
         <result property="bookingAgentId" column="booking_agent_id"></result>
         <result property="commissionFees" column="tot_comm"></result>
+        <result property="totalSales" column="tot_sales"></result>
         <result property="averageCommissionFees" column="avg_comm"></result>
         <result property="ticketBooked" column="comm_num"></result>
         <collection property="airlineNames" javaType="java.util.ArrayList" ofType="String">
@@ -53,7 +54,7 @@
         join purchases p on p.ticket_id = t.ticket_id
         <where>
             <if test="default == true">
-                and f.status = "Upcoming"
+                and f.depature_time &gt;= NOW()
             </if>
             <if test="sourceAirportName != null">
                 and f.departure_airport = #{sourceAirportName}
@@ -99,8 +100,9 @@
         </where>
     </select>
 
+    <!-- Top Customers-->
     <select id="findTopKCommission" resultMap="customer">
-        select c.email,sum(f.price)*0.9 as totalCommission  from customer c
+        with tmp_result as (select c.email as email,sum(f.price)*0.9 as totalCommission from customer c
         left join purchases p
         on p.customer_email = c.email
         left join ticket t
@@ -110,27 +112,32 @@
         and f.airline_name = t.airline_name
         <where>
             p.booking_agent_id is not null
-            and YEAR(p.purchase_date)-YEAR(NOW()) &lt;= 1
+            and p.purchase_date > date_sub(NOW(),interval 1 YEAR)
             group by c.email
             order by totalCommission
-            <if test="K !=null">
-                limit #{K}
-            </if>
-        </where>
 
+        </where>)
+        select * from tmp_result
+        UNION ALL(select email,0 as totalCommission from customer where email not in
+        (select tmp.email from tmp_result tmp))
+        <if test="K !=null">
+            limit #{K}
+        </if>
     </select>
 
+    <!-- Top Customers-->
     <select id="findTopKTickets" resultMap="customer">
-        select c.email,count(distinct ticket_id) as ticketsFromAgent from customer c
-        left join purchases p on p.customer_email = c.email
-        <where> p.booking_agent_id is not null
-            and MONTH(p.purchase_date)-MONTH(NOW()) &lt;= 6
-            group by c.email
-            order by ticketsFromAgent
-            <if test="K!=null">
-                limit #{K}
-            </if></where>
-
+        with tmp_result as(select c.email as email,count(distinct ticket_id) as ticketsFromAgent from customer c
+        left join purchases p on p.customer_email = c.email<where>p.booking_agent_id is not null
+        and p.purchase_date > date_sub(NOW(),interval 6 MONTH)
+        group by c.email
+        order by ticketsFromAgent
+       ) select * from tmp_result
+        UNION ALL(select email,0 as ticketsFromAgent from customer where email not in
+        (select tmp.email from tmp_result tmp))
+        <if test="K!=null">
+            limit #{K}
+        </if></where>
     </select>
 
     <insert id="insertBookingAgent" parameterType="nyu.alex.dao.entity.BookingAgent">

@@ -62,14 +62,22 @@
         <result property="flightNum" column="flight_num"></result>
     </resultMap>
 
+    <!-- global的 默认视图-->
     <select id="findAllFlights" resultMap="allFlightInfo">
-        select * from flight f where f.status = "upcoming"
+        select * from flight f where f.departure_time &gt;= NOW()
     </select>
 
+    <!-- airlineStaff的 默认视图 -->
     <select id="findAllFlightsAirlineStaffDefault" resultMap="allFlightInfo">
-        select * from flight f where f.status = "upcoming" and TO_DAYS(f.departure_time )-TO_DAYS(NOW()) &lt;=30
+        select * from flight f where f.departure_time &gt;= NOW() and TO_DAYS(f.departure_time )-TO_DAYS(NOW()) &lt;=30
     </select>
 
+    <!-- 所有属于当前airlineStaff的flights,Deprecated-->
+    <select id="findAllFlightsWithinAirline" resultMap="allFlightInfo">
+        select * from flight where airline_name = #{airlineName}
+    </select>
+
+    <!-- 一架飞机上的乘客-->
     <select id="findCustomersOnFlight" resultMap="nyu.alex.dao.mapper.IAirlineStaffDao.customerLite">
         select distinct c.* from customer c join purchases p on c.email = p.customer_email
         join ticket t on p.ticket_id = t.ticket_id
@@ -81,7 +89,7 @@
     <select id="findAllFlightsWithFilters" resultMap="allFlightInfo">
         select * from flight f
         <where>
-            f.status = "upcoming"
+            f.departure_time &gt;= NOW()
             <if test="sourceAirportName != null">
                and f.departure_airport = #{sourceAirportName}
             </if>
@@ -128,6 +136,7 @@
         </where>
     </select>
 
+    <!-- Deprecated-->
     <select id="findAllFlightStatus" resultMap="flightInfo">
         select count(*) as flight_num, status from flight group by status;
     </select>
@@ -154,7 +163,7 @@
             left join purchases p on t.ticket_id = p.ticket_id
             left join airplane a on f.airline_name = a.airline_name and f.airplane_id = a.airplane_id
         <where>
-            f.status = "Upcoming"
+            f.departure_time &gt;= NOW()
             <if test="sourceAirportName != null">
                 and f.departure_airport = #{sourceAirportName}
             </if>

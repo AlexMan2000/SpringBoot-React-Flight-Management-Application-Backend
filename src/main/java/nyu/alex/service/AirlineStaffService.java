@@ -7,6 +7,7 @@ import nyu.alex.dao.mapper.IFlightDao;
 import nyu.alex.utils.dataUtils.DataRow;
 import nyu.alex.utils.dataUtils.FlightInfo;
 import nyu.alex.utils.dataUtils.TicketInfo;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -62,6 +63,36 @@ public class AirlineStaffService {
         Customer customer = customerDao.findAllFlightsWithCustomer(email, airlineName);
         List<Flight> flightsWithCustomer = customer.getTakenFlights();
         return null;
+    }
+
+
+    // --------------------------------------------------------------------------------------------//
+
+    public List<DataRow> findTopDestination(String past){
+        return airlineStaffDao.viewTopDestinations(past);
+    }
+
+
+    public List<DataRow> findViewReport(String airlineName){
+        return airlineStaffDao.findViewReports(airlineName);
+    }
+
+    public List<DataRow> findRevenueInfo(String past,String airlineName){
+
+        return airlineStaffDao.findRevenueInfo(past,airlineName);
+    }
+
+
+    /**
+     * Find Most frequent customers with their flight information.
+     * @param K
+     * @param airlineName
+     * @return
+     */
+    public List<Customer> findTopKFreqCustomers(String K,
+                                                String airlineName){
+            return airlineStaffDao.findFreqCustomers(K,airlineName);
+
     }
 
     /**
@@ -176,11 +207,11 @@ public class AirlineStaffService {
 
     }
 
-    public List<DataRow> findTopKSales(Integer past,String K){
+    public List<DataRow> findTopKSales(Integer past,Integer K){
         return airlineStaffDao.findTopKSales(past,K);
     }
 
-    public List<DataRow> findTopKCommission(String K){
+    public List<DataRow> findTopKCommission(Integer K){
         return airlineStaffDao.findTopKCommission(K);
     }
 

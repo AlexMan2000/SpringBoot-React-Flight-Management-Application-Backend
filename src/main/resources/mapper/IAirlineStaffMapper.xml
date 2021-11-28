@@ -39,19 +39,23 @@
         <result column="permission_level"></result>
     </resultMap>
 
-    <sql id="ifTest">
-        <if test='type=="YEAR"'>
-            where YEAR(NOW()) - YEAR(t.purchase_time)
-        </if>
-        <if test='type=="MONTH"'>
-            where MONTH(NOW()) -MONTH(t.purchase_time)
-        </if>
-        <if test='type=="DAY"'>
-            where TO_DAYS(NOW()) - TO_DAYS(t.purchase_time)
-        </if>
-    </sql>
+    <!-- 用来话ViewReports-->
+    <resultMap id="columnMappingReports" type="nyu.alex.utils.dataUtils.DataRow">
+        <result property="interval" column="dateFormatted" javaType="Date" jdbcType="DATE"></result>
+        <result property="value" column="tot_tickets" javaType="Float" jdbcType="NUMERIC"></result>
+    </resultMap>
 
+    <!-- 用来画RevenueComparison-->
+    <resultMap id="columnMappingComparison" type="nyu.alex.utils.dataUtils.DataRow">
+        <result property="type" column="type"></result>
+        <result property="value" column="tot_sales" javaType="Float" jdbcType="NUMERIC"></result>
+    </resultMap>
 
+    <!-- 用来画TopDestinations-->
+    <resultMap id="columnMappingDestinations" type="nyu.alex.utils.dataUtils.DataRow">
+        <result property="type" column="destination"></result>
+        <result property="value" column="tot_tickets" javaType="Float" jdbcType="NUMERIC"></result>
+    </resultMap>
 
     <!--已测试-->
     <select id="findAirlineStaffByName" resultMap="airlineStaff">
@@ -61,15 +65,138 @@
         where a.username=#{name}
     </select>
 
-    <!-- 已测试-->
-    <select id="findAllCustomerPeriod" parameterType="java.sql.Date" resultMap="nyu.alex.dao.mapper.ICustomerDao.customer">
-        select c.*,count(*) as freq from customer c join purchases p on c.email = p.customer_email
-        <include refid="ifTest"/>
-        &lt;= #{interval}
-        group by p.customer_email order by freq desc
+    <select id="findTopKSales" resultMap="nyu.alex.dao.mapper.IBookingAgentDao.bookingAgent">
+        (select b.email as email,sum(f.price)*1.1 as tot_sales
+        from booking_agent b left join purchases p on b.booking_agent_id = p.booking_agent_id
+        left join ticket t on p.ticket_id = t.ticket_id
+        left join flight f on t.airline_name = f.airline_name and t.flight_num = f.flight_num
+        <where>
+            p.booking_agent_id is not null
+            and p.purchase_date > date_sub(NOW(),interval #{past} MONTH)
+            group by b.email
+            order by tot_sales desc
+        </where>)UNION(select email,0 as tot_sales from booking_agent)
+        <if test="K !=null">
+            limit #{K}
+        </if>
     </select>
 
-    <!--已测试-->
+
+    <select id="findTopKCommission" resultMap="nyu.alex.dao.mapper.IBookingAgentDao.bookingAgent">
+        (select b.email as email,
+        sum(f.price)*0.1
+        as tot_comm from booking_agent b left join purchases p on b.booking_agent_id = p.booking_agent_id
+        left join ticket t on p.ticket_id = t.ticket_id
+        left join flight f on t.airline_name = f.airline_name and t.flight_num = f.flight_num
+        <where>
+            p.booking_agent_id is not null
+            and p.purchase_date > date_sub(NOW(),interval 12 MONTH)
+            group by b.email
+            order by tot_comm desc
+        </where>)UNION(select email,0 as tot_sales from booking_agent)
+        <if test="K !=null">
+            limit #{K}
+        </if>
+    </select>
+
+    <select id="findViewReports" resultMap="columnMappingReports">
+        select date_format(p.purchase_date,'%Y-%m') as dateFormatted, sum(t.ticket_id) as tot_tickets
+        from flight f join ticket t on f.airline_name = t.airline_name and f.flight_num = t.flight_num
+        join purchases p on t.ticket_id = p.ticket_id where f.airline_name =#{airlineName}
+        and p.purchase_date &gt;= date_sub(NOW(),interval 12 MONTH)
+        group by date_format(p.purchase_date,'%Y-%m')
+    </select>
+
+    <!-- For a particular airline company-->
+    <select id="findRevenueInfo" resultMap="columnMappingComparison">
+        WITH directSales AS (
+            SELECT
+                'direct_sales' as type,  case when
+                                            sum( f.price ) is null then 0
+                                            else sum( f.price ) end
+            as tot_sales
+            FROM
+                purchases p
+                    LEFT JOIN ticket t ON t.ticket_id = p.ticket_id
+                    LEFT JOIN flight f ON f.flight_num = t.flight_num
+                    AND f.airline_name = t.airline_name
+            WHERE
+                <if test="past=='year'">
+                    p.purchase_date >= date_sub( NOW(), INTERVAL 1 YEAR )
+                </if>
+                 <if test="past=='month'">
+                     p.purchase_date >= date_sub( NOW(), INTERVAL 1 MONTH )
+                 </if>
+              AND f.airline_name = #{airlineName}
+              AND p.booking_agent_id IS NULL
+        ),
+             indirectSales AS (
+                 SELECT
+                     'indrect sales' as type,  case
+                     when sum( f.price ) is null then 0
+                     else sum( f.price ) end
+                as tot_sales
+                 FROM
+                     purchases p
+                         LEFT JOIN ticket t ON t.ticket_id = p.ticket_id
+                         LEFT JOIN flight f ON f.flight_num = t.flight_num
+                         AND f.airline_name = t.airline_name
+                 WHERE
+                <if test="past=='year'">
+                    p.purchase_date >= date_sub( NOW(), INTERVAL 1 YEAR )
+                </if>
+                <if test="past=='month'">
+                    p.purchase_date >= date_sub( NOW(), INTERVAL 1 MONTH )
+                </if>
+                   AND f.airline_name = #{airlineName}
+                   AND p.booking_agent_id IS NOT NULL
+             )
+                (select * from directSales)
+                union all
+                (select * from indirectSales) ;
+    </select>
+
+    <select id="viewTopDestinations" resultMap="columnMappingDestinations">
+        with tmp_result as (SELECT
+            f.arrival_airport AS destination,
+            count( p.ticket_id ) AS tot_tickets
+        FROM
+            flight f
+                LEFT JOIN ticket t ON f.airline_name = t.airline_name
+                AND f.flight_num = t.flight_num
+                LEFT JOIN purchases p ON p.ticket_id = t.ticket_id
+        <where>
+            <if test="past=='month'">
+                and p.purchase_date >= date_sub( NOW(), INTERVAL 3 MONTH )
+            </if>
+            <if test="past=='year'">
+                and p.purchase_date >= date_sub( NOW(), INTERVAL 1 YEAR )
+            </if>
+        </where>
+        GROUP BY
+            f.arrival_airport
+        )
+        select * from tmp_result UNION ALL
+        ( SELECT DISTINCT arrival_airport AS destination, 0 AS tot_tickets
+        FROM flight
+        where arrival_airport not in
+             (select tmp.destination from tmp_result tmp) )
+        order by tot_tickets desc;
+    </select>
+
+    <select id="findFreqCustomers" parameterType="java.sql.Date" resultMap="nyu.alex.dao.mapper.ICustomerDao.customer">
+        select distinct c.*,count(p.ticket_id) as total_tickets from customer c left join purchases p on c.email = p.customer_email
+        left join ticket t on p.ticket_id = t.ticket_id
+        left join flight f on t.airline_name = f.airline_name and t.flight_num = f.flight_num
+        <where>
+            <if test="airlineName!=null">
+                and f.airline_name = #{airlineName}
+            </if>
+        </where>
+        group by c.email order by total_tickets desc
+    </select>
+
+    <!--Deprecated-->
     <select id="findAmountOfTicketsEachPeriod" resultMap="ticketInfo">
         select MONTH(t.purchase_date) as month,YEAR(t.purchase_date) as year,count(*) as num_of_tickets from purchases t
         where YEAR(t.purchase_date) between #{year[0]} and #{year[1]}
@@ -77,14 +204,7 @@
     </select>
 
 
-    <!--已测试-->
-    <select id="findTopKBookingAgentEachPeriod" resultMap="nyu.alex.dao.mapper.IBookingAgentDao.bookingAgent">
-        <include refid="nyu.alex.dao.mapper.IBookingAgentDao.findCommissionTemplate">
-        </include>
-        <include refid="ifTest"/>
-        &lt;= #{interval}
-        group by b.email order by tot_comm DESC limit #{K}
-    </select>
+    <select id="total"></select>
 
     <!-- 已测试-->
     <insert id="insertNewAirplane" parameterType="nyu.alex.dao.entity.Airplane">
@@ -138,28 +258,5 @@
         delete from flight where (flight_num,airline_name) in #{key}
     </delete>
 
-    <select id="findTopKSales" resultType="nyu.alex.utils.dataUtils.DataRow">
-        select b.email as email,sum(f.price)*1.1 as value from booking_agent b left join purchases p on b.booking_agent_id = p.booking_agent_id
-        left join ticket t on p.ticket_id = t.ticket_id
-        left join flight f on t.airline_name = f.airline_name and t.flight_num = f.flight_num
-        <where>
-            p.booking_agent_id is not null
-            and MONTH(NOW()) - MONTH(p.purchase_date) &lt;= #{past}
-            group by b.email
-            order by value desc
-        </where>
-    </select>
 
-
-    <select id="findTopKCommission" resultType="nyu.alex.utils.dataUtils.DataRow">
-        select b.email as email,sum(f.price)*0.1 as value from booking_agent b left join purchases p on b.booking_agent_id = p.booking_agent_id
-        left join ticket t on p.ticket_id = t.ticket_id
-        left join flight f on t.airline_name = f.airline_name and t.flight_num = f.flight_num
-        <where>
-            p.booking_agent_id is not null
-            and MONTH(NOW()) - MONTH(p.purchase_date) &lt;= 12
-            group by b.email
-            order by value desc
-        </where>
-    </select>
 </mapper>

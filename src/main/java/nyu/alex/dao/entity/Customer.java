@@ -26,5 +26,6 @@ public class Customer implements Serializable {
 
     List<Flight> takenFlights;
     private Integer ticketsFromAgent;
+    private Integer ticketsTotal;
     private Float totalCommission;
 }

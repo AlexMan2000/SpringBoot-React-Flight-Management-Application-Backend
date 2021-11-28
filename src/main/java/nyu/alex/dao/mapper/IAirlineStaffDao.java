@@ -13,12 +13,16 @@ public interface IAirlineStaffDao {
     //用于登录注册校验
     AirlineStaff findAirlineStaffByName(String userName);
 
-    //需要修改
+
+    //Deprecated
     List<Customer> findAllCustomerPeriod(@Param("type") String timespanType, @Param("interval")Integer timespan);
 
     List<Customer> findCustomersOnFlight(@Param("airlineName") String airlineName,@Param("flightNum") String flightNum);
-    //需要修改
+
+    //Deprecated
     List<BookingAgent> findTopKBookingAgentEachPeriod(@Param("type")String timespanType,@Param("K")Integer K,@Param("interval")Integer timespan);
+
+
 
     List<TicketInfo> findAmountOfTicketsEachPeriod(@Param("year")int[] year);
 
@@ -48,8 +52,21 @@ public interface IAirlineStaffDao {
 
     void updateAirlineStaff(AirlineStaff airlineStaff);
 
-    List<DataRow> findTopKSales(@Param("past") Integer past,@Param("K") String K);
+    List<Customer> findFreqCustomers(@Param("K") String K,
+                                     @Param("airlineName") String airlineName);
 
-    List<DataRow> findTopKCommission(@Param("K") String K);
+    // View Agent
+    List<DataRow> findTopKSales(@Param("past") Integer past,@Param("K") Integer K);
+
+    //View Agent
+    List<DataRow> findTopKCommission(@Param("K") Integer K);
+
+    // View Report
+    List<DataRow> findViewReports(@Param("airlineName") String airlineName);
+
+    // Revenue Comparison
+    List<DataRow> findRevenueInfo(@Param("past") String past,@Param("airlineName") String airlineName);
+
+    List<DataRow> viewTopDestinations(@Param("past") String past);
 
 }

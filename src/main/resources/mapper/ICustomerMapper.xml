@@ -15,8 +15,10 @@
         <result property="passportExpiration" column="passport_expiration"></result>
         <result property="passportCountry" column="passport_country"></result>
         <result property="birthday" column="date_of_birth"></result>
+        <result property="ticketsFromAgent" column="agent_tickets"></result>
+        <result property="ticketsTotal" column="total_tickets"></result>
         <collection property="takenFlights" javaType="java.util.ArrayList" ofType="Flight"
-      >
+      column="{email=email}" select="findAllFlightsOfCustomer">
             <id property="flightNum" column="flight_num"></id>
             <result property="departureTime" column="departure_time"></result>
             <result property="arrivalTime" column="arrival_time"></result>
@@ -35,7 +37,8 @@
     </resultMap>
 
     <resultMap id="chartModel" type="nyu.alex.utils.dataUtils.DataRow">
-        <result property="timestamp" column="date" ></result>
+        <result property="interval" column="dateFormatted" javaType="Date" jdbcType="DATE"></result>
+        <result property="timestamp" column="date"></result>
         <result property="value" column="spending" javaType="Float" jdbcType="NUMERIC"></result>
     </resultMap>
 
@@ -52,6 +55,15 @@
 
     <select id="findCustomerByEmail" parameterType="String" resultMap="customer">
         select * from customer where email=#{email}
+    </select>
+
+    <!-- Flights taken particularly on that airline-->
+    <select id="findAllFlightsOfCustomer" resultMap="nyu.alex.dao.mapper.IFlightDao.allFlightInfoLite">
+        select distinct f.* from flight f
+            left join ticket t on f.airline_name = t.airline_name and f.flight_num = t.flight_num
+            left join purchases p on t.ticket_id = p.ticket_id
+            left join customer c on p.customer_email = c.email
+            where c.email = #{email} and f.arrival_time &lt;= NOW() and f.status != 'cancelled'
     </select>
 
 <!--    <select id="findAllFlightsWithCustomer" parameterType="String" resultMap="customer">-->
@@ -114,7 +126,7 @@
     </select>
 
     <select id="trackSpending" resultMap="chartModel">
-        select MONTH(p.purchase_date) as date,
+        select date_format(p.purchase_date,'%Y-%m') as dateFormatted,
                sum(f.price) as spending
         from purchases p
         join ticket t on p.ticket_id = t.ticket_id
@@ -122,7 +134,7 @@
         <where>
          p.customer_email=#{email}
             <if test="startDate == null and endDate ==null">
-                and MONTH(NOW()) - MONTH(p.purchase_date) &lt;=6
+                and p.purchase_date > date_sub(NOW(),interval 6 MONTH)
             </if>
         <if test="startDate!=null">
             and p.purchase_date &gt;= #{startDate}
@@ -135,11 +147,11 @@
                     and f.status = #{status}
                 </when>
         <otherwise>
-            and f.status="upcoming"
+            and f.depature_time &gt;= NOW()
         </otherwise>
             </choose>
         </where>
-        group by MONTH(p.purchase_date)
+        group by date_format(p.purchase_time,'%Y-%m')
     </select>
 
     <insert id="insertCustomer" parameterType="nyu.alex.dao.entity.Customer">
