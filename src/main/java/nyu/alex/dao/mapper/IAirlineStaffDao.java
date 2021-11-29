@@ -5,6 +5,7 @@ import nyu.alex.utils.dataUtils.DataRow;
 import nyu.alex.utils.dataUtils.TicketInfo;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -52,6 +53,14 @@ public interface IAirlineStaffDao {
 
     void updateAirlineStaff(AirlineStaff airlineStaff);
 
+    // Used for validate if this bookingaAgent has been added or not
+    BookingAgent findAgentByEmail(@Param("email") String email);
+
+    // Used for validate if this bookingAgent has been added to the booking_agent_work_for or not
+    BookingAgent findAgentWorkingFor(@Param("email") String email,@Param("airlineName") String airlineName);
+
+    void addAgent(@Param("email") String email,@Param("airlineName") String airlineName);
+
     List<Customer> findFreqCustomers(@Param("K") String K,
                                      @Param("airlineName") String airlineName);
 
@@ -62,7 +71,9 @@ public interface IAirlineStaffDao {
     List<DataRow> findTopKCommission(@Param("K") Integer K);
 
     // View Report
-    List<DataRow> findViewReports(@Param("airlineName") String airlineName);
+    List<DataRow> findViewReports(@Param("airlineName") String airlineName, @Param("startDate") Date startDate,
+                                  @Param("endDate") Date endDate
+                                  );
 
     // Revenue Comparison
     List<DataRow> findRevenueInfo(@Param("past") String past,@Param("airlineName") String airlineName);

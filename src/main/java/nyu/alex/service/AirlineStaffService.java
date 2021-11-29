@@ -11,10 +11,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class AirlineStaffService {
@@ -73,8 +70,8 @@ public class AirlineStaffService {
     }
 
 
-    public List<DataRow> findViewReport(String airlineName){
-        return airlineStaffDao.findViewReports(airlineName);
+    public List<DataRow> findViewReport(String airlineName, Date startDate, Date endDate){
+        return airlineStaffDao.findViewReports(airlineName,startDate,endDate);
     }
 
     public List<DataRow> findRevenueInfo(String past,String airlineName){
@@ -168,6 +165,27 @@ public class AirlineStaffService {
     public void insertNewAirplane(Airplane airplane){
 
         airlineStaffDao.insertNewAirplane(airplane);
+    }
+
+    public void addAgent(String email,String airlineName){
+        airlineStaffDao.addAgent(email,airlineName);
+    }
+
+    public Map<String,Boolean> validateAgent(String email,String airlineName){
+        Map<String,Boolean> statusMapping = new HashMap<>();
+
+        statusMapping.put("emailValid",true);
+        statusMapping.put("workingValid",true);
+        statusMapping.put("success",true);
+        BookingAgent agentByEmail = airlineStaffDao.findAgentByEmail(email);
+        BookingAgent agentWorkingFor = airlineStaffDao.findAgentWorkingFor(email, airlineName);
+        if(agentByEmail == null){
+            statusMapping.put("emailValid",false);
+        }
+        if(agentWorkingFor!=null){
+            statusMapping.put("workingValid",false);
+        }
+        return statusMapping;
     }
 
     public Airplane findAirplane(Airplane airplane){

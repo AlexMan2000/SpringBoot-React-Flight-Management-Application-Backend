@@ -10,7 +10,7 @@ import java.util.Map;
 @Data
 public class DataRow {
 
-    private Date interval;
+    private String interval;
     private String email;
     private String type;
     private Integer timestamp;

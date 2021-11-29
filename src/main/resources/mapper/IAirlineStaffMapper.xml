@@ -2,6 +2,11 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 
 <mapper namespace="nyu.alex.dao.mapper.IAirlineStaffDao">
+
+    <resultMap id="bookingAgentLite" type="BookingAgent">
+        <id property="email" column="email"></id>
+    </resultMap>
+
     <resultMap id="customerLite" type="Customer">
         <id property="email" column="email"></id>
         <result property="name" column="name"></result>
@@ -41,7 +46,7 @@
 
     <!-- 用来话ViewReports-->
     <resultMap id="columnMappingReports" type="nyu.alex.utils.dataUtils.DataRow">
-        <result property="interval" column="dateFormatted" javaType="Date" jdbcType="DATE"></result>
+        <result property="interval" column="dateFormatted" ></result>
         <result property="value" column="tot_tickets" javaType="Float" jdbcType="NUMERIC"></result>
     </resultMap>
 
@@ -100,11 +105,37 @@
     </select>
 
     <select id="findViewReports" resultMap="columnMappingReports">
-        select date_format(p.purchase_date,'%Y-%m') as dateFormatted, sum(t.ticket_id) as tot_tickets
-        from flight f join ticket t on f.airline_name = t.airline_name and f.flight_num = t.flight_num
-        join purchases p on t.ticket_id = p.ticket_id where f.airline_name =#{airlineName}
-        and p.purchase_date &gt;= date_sub(NOW(),interval 12 MONTH)
-        group by date_format(p.purchase_date,'%Y-%m')
+        set @start_date = date_format(date_sub(NOW(),interval 12 MONTH),'%Y-%m-%d');
+        with data as (
+                select date_format(p.purchase_date,'%Y-%m') as dateFormatted,
+                       count(t.ticket_id) as tot_tickets
+                from flight f join ticket t on f.airline_name = t.airline_name and f.flight_num = t.flight_num
+                join purchases p on t.ticket_id = p.ticket_id
+                <where> f.airline_name = #{airlineName}
+                    and p.purchase_date &gt;= date_sub(NOW(),interval 12 MONTH)
+                <if test="startDate!=null and endDate!=null">
+                    and p.purchase_date &gt;= #{startDate}
+                    and p.purchase_date &lt;= #{endDate}
+                </if>
+                </where>
+                group by date_format(p.purchase_date,'%Y-%m')
+            ),
+        tmp_result as (
+            with recursive months(m) as (
+                select 0
+                union all
+                select m + 1
+                from months
+                where m &lt;= 11
+                )
+        select date_format(@start_date + interval m.m month,'%Y-%m') as dateFormatted, 0 as tot_tickets
+            from months m
+            order by m.m asc)
+            select * from data union all (select * from tmp_result t
+            where t.dateFormatted not in (select d.dateFormatted from data d)
+        ) order by dateFormatted
+
+
     </select>
 
     <!-- For a particular airline company-->
@@ -203,7 +234,6 @@
         group by MONTH(t.purchase_date),YEAR(t.purchase_date)
     </select>
 
-
     <select id="total"></select>
 
     <!-- 已测试-->
@@ -257,6 +287,19 @@
     <delete id="deleteFlights">
         delete from flight where (flight_num,airline_name) in #{key}
     </delete>
+
+    <insert id="addAgent" >
+        insert into booking_agent_work_for values(#{email},#{airlineName})
+    </insert>
+
+    <select id="findAgentWorkingFor" resultMap="bookingAgentLite">
+        select * from booking_agent_work_for where email=#{email} and airline_name=#{airlineName}
+    </select>
+
+    <select id="findAgentByEmail" resultMap="bookingAgentLite">
+        select * from booking_agent where email=#{email}
+    </select>
+
 
 
 </mapper>

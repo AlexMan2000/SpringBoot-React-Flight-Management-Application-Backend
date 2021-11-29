@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.time.Instant;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,8 +57,21 @@ public class AirlineStaffController {
     // For the airline company te user works for
     @GetMapping("/viewReports")
     @ResponseBody
-    public List<DataRow> findViewReports(@RequestParam("airlineName") String airlineName){
-        return airlineStaffService.findViewReport(airlineName);
+    public List<DataRow> findViewReports(@RequestParam("airlineName") String airlineName,
+                                         @RequestParam(value="startDate",required = false) String startDate,
+                                         @RequestParam(value="endDate",required = false) String endDate){
+        Date startDateObject = null;
+        Date endDateObject = null;
+
+        if(startDate!=null || endDate != null){
+            startDateObject = Date.from(Instant.parse(startDate));
+            endDateObject = Date.from(Instant.parse(endDate));
+            System.out.println(startDateObject);
+            System.out.println(endDateObject);
+        }
+
+
+        return airlineStaffService.findViewReport(airlineName,startDateObject,endDateObject);
     }
 
     /**
@@ -181,6 +196,26 @@ public class AirlineStaffController {
         return "success";
     }
 
+    @PostMapping("/validateBookingAgent")
+    @ResponseBody
+    public Map<String,Boolean> validateBookingAgent(@RequestParam("email") String email,
+                                                   @RequestParam("airlineName") String airlineName){
+        return airlineStaffService.validateAgent(email, airlineName);
+    }
+
+    @PostMapping("/addBookingAgent")
+    @ResponseBody
+    public Map<String,Boolean> addBookingAgent(@RequestParam("email") String email,
+                                  @RequestParam("airlineName") String airlineName){
+        Map<String, Boolean> stringBooleanMap = validateBookingAgent(email, airlineName);
+        System.out.println(stringBooleanMap);
+        if(stringBooleanMap.get("emailValid")==true&&stringBooleanMap.get("workingValid")==true){
+            airlineStaffService.addAgent(email,airlineName);
+            stringBooleanMap.put("success",true); }
+        stringBooleanMap.put("success",false);
+        return stringBooleanMap;
+    }
+
     /**
      * Delete the flight.
      * @param flightNum
@@ -193,5 +228,7 @@ public class AirlineStaffController {
         airlineStaffService.deleteFlight(flightNum,airlineName);
         return "success";
     }
+
+
 
 }

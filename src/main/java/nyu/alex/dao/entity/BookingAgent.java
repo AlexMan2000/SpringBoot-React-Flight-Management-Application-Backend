@@ -18,5 +18,6 @@ public class BookingAgent implements Serializable {
     private Float averageCommissionFees;
     private Integer ticketBooked;
 
+    // Could work for multiply airline companies
     private List<String> airlineNames;
 }

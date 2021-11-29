@@ -13,7 +13,7 @@ spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driverClassName: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql:///database_project_pro?useUnicode=true&characterEncoding=UTF8&serverTimezone=UTC
+    url: jdbc:mysql:///database_project_pro?useUnicode=true&characterEncoding=UTF8&serverTimezone=UTC&allowMultiQueries=true
     username: root
     password: 123456
   mvc:
