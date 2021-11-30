@@ -35,37 +35,6 @@ public class IndexController {
     private IFlightDao flightDao;
 
 
-//    @GetMapping("/airport")
-//    public String showAirports(Model model){
-//        List<Airport> results = airportDao.findAllAirports();
-//        for(Airport airport:results){
-//            System.out.println(airport.getAirportName());
-//        }
-//        model.addAttribute("hello","shit");
-//        return "index";
-//    }
-
-    @GetMapping("/airplane")
-    public String showAirplanes(){
-        List<Airplane> results = airplaneDao.findAllAirplanes();
-        for(Airplane airplane:results){
-            System.out.println(airplane.getId());
-        }
-        return "registerBookingAgent";
-    }
-
-    @GetMapping("")
-    public String showUpcomingFlight(Model model){
-        System.out.println("知道啦");
-        List<Flight> results = flightDao.findAllFlights();
-        for(Flight flight:results){
-            System.out.println(flight);
-        }
-        model.addAttribute("flights",results);
-        model.addAttribute("hello","shit");
-        return "index";
-    }
-
     @PostMapping("/searchFlights")
     @ResponseBody
     public List<Flight> searchFlights(@RequestBody Flight flight) {

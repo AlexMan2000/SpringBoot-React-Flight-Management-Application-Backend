@@ -9,6 +9,7 @@ import nyu.alex.service.CustomerService;
 import nyu.alex.utils.dataUtils.DataRow;
 import nyu.alex.utils.dataUtils.FlightInfo;
 import nyu.alex.utils.dataUtils.TicketInfo;
+import nyu.alex.utils.serviceUtils.GrantUtils;
 import nyu.alex.utils.serviceUtils.LoginUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -54,14 +55,6 @@ public class TestController {
     }
 
 
-    @GetMapping("/{email}")
-    public String testFindCustomer(@PathVariable("email") String email, Model model){
-        System.out.println(email);
-        Customer customer = customerDao.findCustomerByEmail(email);
-        model.addAttribute("customer",customer);
-        return "test";
-    }
-
     @GetMapping("/airlineFlights")
     @ResponseBody
     public String testFindFlightsForAirline(){
@@ -71,14 +64,6 @@ public class TestController {
         }
         return "success";
     }
-
-//    @GetMapping("/commission")
-//    @ResponseBody
-//    public String testFindCommissionInfo(){
-//        BookingAgent bookingAgent = bookingAgentDao.findCommissionInfo("cathayEmp01@csair.com",100);
-//        System.out.println(bookingAgent);
-//        return "sucess";
-//    }
 
     @GetMapping("/flightsWithCustomer")
     @ResponseBody
@@ -101,21 +86,7 @@ public class TestController {
     }
 
 
-    @GetMapping("/insertFlight")
-    public String testInsertNewFlight(){
-        Flight flight = new Flight();
-        flight.setFlightNum("MU7275");
-        flight.setAirlineName("Cathay Pacific");
-        flight.setAirplaneId("A550");
-        flight.setDepartureTime(new Date(50876543));
-        flight.setArrivalTime(new Date(50876545));
-        flight.setPrice(9804.52f);
-        flight.setStatus("Upcoming");
-        flight.setSourceAirportName("AUH");
-        flight.setDestAirportName("SZX");
-        airlineStaffDao.insertNewFlight(flight);
-        return "success";
-    }
+
 
     @GetMapping("/updateFlight")
     @ResponseBody
@@ -185,43 +156,15 @@ public class TestController {
         return "success";
     }
 
+    @PostMapping("/grantTest")
+    @ResponseBody
+    public String testGrant(@RequestBody GrantUtils grantUtils){
+        System.out.println(grantUtils.getPermission());
+//        System.out.println(Arrays.toString(permission));
+//        airlineStaffDao.grantAirlineStaff(userName,permission);
+        return "success";
+    }
 
-//    public Map<String,List<?>> getData() throws ParseException {
-//        DateFormat df=  new SimpleDateFormat("yyyy-MM-dd");
-//        Date[] tmp = {new Date(df.parse("2021-08-01").getTime()),new Date(df.parse("2021-09-01").getTime())};
-////        List<Map<String, Float>> dateValueMap = customerDao.trackSpending("abababababa@gmail.com", tmp);
-//        List<DataRow> dataRows = customerDao.trackSpending("abababababa@gmail.com", tmp);
-//        List<Integer> dates = new ArrayList<>();
-//        List<Float> values = new ArrayList<>();
-//        for(DataRow row:dataRows){
-//            dates.add(row.getTimestamp());
-//            values.add(row.getValue());
-//        }
-//        System.out.println(dates);
-//        System.out.println(values);
-//        Map<String,List<?>> result = new HashMap<>();
-//        result.put("dataRow",dataRows);
-//        result.put("dates",dates);
-//        result.put("values",values);
-//        return result;
-//    }
-
-//    @GetMapping("/chart")
-//    public String testChart(Model model) throws ParseException {
-//        Map<String, List<?>> data = getData();
-//        model.addAttribute("data",data.get("dataRow"));
-//        model.addAttribute("date",data.get("dates"));
-//        model.addAttribute("values",data.get("values"));
-//        return "customer";
-//    }
-
-    //ResponseBody在这里用于返回json格式的对象供前端接收
-//    @GetMapping("/chartAjax")
-//    @ResponseBody
-//    public Map<String,List<?>> testAjaxPie(Model model) throws ParseException {
-//        Map<String, List<?>> data = getData();
-//        return data;
-//    }
 
     @PostMapping("/testLogin")
     @ResponseBody
@@ -251,34 +194,5 @@ public class TestController {
         return "success";
     }
 
-    @GetMapping("/testDashBoard")
-    public String testDashBoard(){
-        return "dashboard";
-    }
-
-    @GetMapping("/testAdd")
-    public String testAdd(){
-        return "emp/add";
-    }
-
-    @GetMapping("/testList")
-    public String testList(){
-        return "emp/list";
-    }
-
-    @GetMapping("/customer")
-    public String customerPage(){
-        return "customer";
-    }
-
-    @GetMapping("/airlineStaff")
-    public String airlineStaffPage(){
-        return "airlineStaff";
-    }
-
-    @GetMapping("/bookingAgent")
-    public String bookingAgentPage(){
-        return "bookingAgent";
-    }
 
 }

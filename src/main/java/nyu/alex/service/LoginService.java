@@ -49,6 +49,7 @@ public class LoginService {
                 // 登录成功
                 if (truePassword.equals(password)) {
                     status.setStatus(true);
+                    status.setCustomer(customer);
                 } else {
                     status.setStatusCode(2);
                     status.setStatus(false);
@@ -69,6 +70,7 @@ public class LoginService {
                 //登录成功
                 if (passwordStatus && bookingIdStatus) {
                     status.setStatus(true);
+                    status.setBookingAgent(bookingAgent);
                 } else {
                     status.setStatus(false);
                     if (passwordStatus == false) {
@@ -79,6 +81,7 @@ public class LoginService {
                 }
             }
         }
+        //需要获取权限信息
         else if (userType.equals("staff")) {
             String username = loginInfo.getUsername();
             AirlineStaff airlineStaff = airlineStaffDao.findAirlineStaffByName(username);
@@ -89,6 +92,7 @@ public class LoginService {
                 //登录成功
                 if (truePassword.equals(password)) {
                     status.setStatus(true);
+                    status.setAirlineStaff(airlineStaff);
                 } else {
                     status.setStatusCode(2);
                     status.setStatus(false);

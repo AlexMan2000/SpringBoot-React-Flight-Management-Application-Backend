@@ -1,5 +1,9 @@
 package nyu.alex.utils.serviceUtils;
 
+import lombok.Data;
+import nyu.alex.dao.entity.AirlineStaff;
+import nyu.alex.dao.entity.BookingAgent;
+import nyu.alex.dao.entity.Customer;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -7,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
+@Data
 @Scope("prototype")
 public class StatusMessage {
 
@@ -18,6 +23,12 @@ public class StatusMessage {
 
     private Map<Integer,String> statusMapping;
 
+    private AirlineStaff airlineStaff;
+
+    private Customer customer;
+
+    private BookingAgent bookingAgent;
+
     public StatusMessage(){
         statusMapping = new HashMap<>();
         statusMapping.put(1,"User Not Found!");
@@ -26,30 +37,30 @@ public class StatusMessage {
         statusMapping.put(4,"Someone Else Already Registered!");
     }
 
-    public String getStatusMessage() {
-        return statusMessage;
-    }
-
-    public void setStatusMessage(String statusMessage) {
-        this.statusMessage = statusMessage;
-    }
-
-    public Map<Integer, String> getStatusMapping() {
-        return statusMapping;
-    }
-
-    public void setStatusMapping(Map<Integer, String> statusMapping) {
-        this.statusMapping = statusMapping;
-    }
-
-    public Integer getStatusCode() {
-        return statusCode;
-    }
-
-    public void setStatusCode(Integer statusCode) {
-        this.statusCode = statusCode;
-    }
-
+//    public String getStatusMessage() {
+//        return statusMessage;
+//    }
+//
+//    public void setStatusMessage(String statusMessage) {
+//        this.statusMessage = statusMessage;
+//    }
+//
+//    public Map<Integer, String> getStatusMapping() {
+//        return statusMapping;
+//    }
+//
+//    public void setStatusMapping(Map<Integer, String> statusMapping) {
+//        this.statusMapping = statusMapping;
+//    }
+//
+//    public Integer getStatusCode() {
+//        return statusCode;
+//    }
+//
+//    public void setStatusCode(Integer statusCode) {
+//        this.statusCode = statusCode;
+//    }
+//
     public boolean getStatus() {
         return status;
     }

@@ -34,11 +34,6 @@ public class CustomerController {
     @Autowired
     private CustomerService customerService;
 
-    @GetMapping("")
-    public String getPage(){
-        return "customer";
-    }
-
     @InitBinder
     public void initBinder(ServletRequestDataBinder bin){
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

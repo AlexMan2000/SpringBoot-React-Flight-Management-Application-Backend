@@ -28,7 +28,7 @@ public class LoginController {
 
     @PostMapping("")
     @ResponseBody
-    public String validate(HttpServletRequest request,@RequestBody LoginUtils loginUtils){
+    public StatusMessage validate(HttpServletRequest request,@RequestBody LoginUtils loginUtils){
 
         String userType = loginUtils.getUserType();
 
@@ -42,13 +42,15 @@ public class LoginController {
             System.out.println("登录成功");
             request.getSession().setAttribute("userInfo",loginUtils);
             //显示对应的页面
-            return "success";
-        }else{
-            //登录失败展示失败原因
-            Integer code = statusMessage.getStatusCode();
-            String s = statusMessage.getStatusMapping().get(code);
-            return s;
+//            return status;
         }
+//        else{
+//            //登录失败展示失败原因
+//            Integer code = statusMessage.getStatusCode();
+//            String s = statusMessage.getStatusMapping().get(code);
+//            return s;
+//        }
+        return statusMessage;
     }
 
 

@@ -7,6 +7,7 @@ import nyu.alex.dao.mapper.IAirportDao;
 import nyu.alex.dao.mapper.IFlightDao;
 import nyu.alex.service.AirlineStaffService;
 import nyu.alex.utils.dataUtils.DataRow;
+import nyu.alex.utils.serviceUtils.GrantUtils;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -203,6 +204,13 @@ public class AirlineStaffController {
         return airlineStaffService.validateAgent(email, airlineName);
     }
 
+    @PostMapping("/validatePermission")
+    @ResponseBody
+    public Map<String,Boolean> validatePermission(@RequestBody GrantUtils grantUtils){
+
+        return airlineStaffService.validateGrantPermission(grantUtils);
+    }
+
     @PostMapping("/addBookingAgent")
     @ResponseBody
     public Map<String,Boolean> addBookingAgent(@RequestParam("email") String email,
@@ -213,6 +221,18 @@ public class AirlineStaffController {
             airlineStaffService.addAgent(email,airlineName);
             stringBooleanMap.put("success",true); }
         stringBooleanMap.put("success",false);
+        return stringBooleanMap;
+    }
+
+    @PostMapping("/grantPermission")
+    @ResponseBody
+    public Map<String,Boolean> grantPermission(@RequestBody GrantUtils grantUtils){
+        Map<String, Boolean> stringBooleanMap = validatePermission(grantUtils);
+        System.out.println(stringBooleanMap);
+        if(stringBooleanMap.get("nameValid")==true&&stringBooleanMap.get("permissionValid")==true){
+            airlineStaffService.grantAirlineStaff(grantUtils);
+            stringBooleanMap.put("success",true); }
+        else{stringBooleanMap.put("success",false);}
         return stringBooleanMap;
     }
 

@@ -3,7 +3,9 @@ package nyu.alex.dao.mapper;
 import nyu.alex.dao.entity.*;
 import nyu.alex.utils.dataUtils.DataRow;
 import nyu.alex.utils.dataUtils.TicketInfo;
+import nyu.alex.utils.serviceUtils.GrantUtils;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Date;
 import java.util.List;
@@ -11,9 +13,10 @@ import java.util.Map;
 
 public interface IAirlineStaffDao {
 
-    //用于登录注册校验
+    //用于登录注册校验以及权限管理
     AirlineStaff findAirlineStaffByName(String userName);
 
+    AirlineStaff findAirlineStaffByNameAndAirline(GrantUtils grantUtils);
 
     //Deprecated
     List<Customer> findAllCustomerPeriod(@Param("type") String timespanType, @Param("interval")Integer timespan);
@@ -60,6 +63,8 @@ public interface IAirlineStaffDao {
     BookingAgent findAgentWorkingFor(@Param("email") String email,@Param("airlineName") String airlineName);
 
     void addAgent(@Param("email") String email,@Param("airlineName") String airlineName);
+
+    void grantAirlineStaff(GrantUtils grantUtils);
 
     List<Customer> findFreqCustomers(@Param("K") String K,
                                      @Param("airlineName") String airlineName);

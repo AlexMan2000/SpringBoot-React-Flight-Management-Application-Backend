@@ -7,8 +7,10 @@ import nyu.alex.dao.mapper.IFlightDao;
 import nyu.alex.utils.dataUtils.DataRow;
 import nyu.alex.utils.dataUtils.FlightInfo;
 import nyu.alex.utils.dataUtils.TicketInfo;
+import nyu.alex.utils.serviceUtils.GrantUtils;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -186,6 +188,35 @@ public class AirlineStaffService {
             statusMapping.put("workingValid",false);
         }
         return statusMapping;
+    }
+
+    public Map<String,Boolean> validateGrantPermission(GrantUtils grantUtils){
+        Map<String,Boolean> statusMapping = new HashMap<>();
+        Set<String> permissionToBeGranted = new HashSet<>(grantUtils.getPermission());
+        statusMapping.put("nameValid",true);
+        statusMapping.put("permissionValid",true);
+        statusMapping.put("success",true);
+        AirlineStaff airlineStaffByName = airlineStaffDao.findAirlineStaffByNameAndAirline(grantUtils);
+//        AirlineStaff airlineStaffPermission = airlineStaffDao.findAirlineStaffByNameAndAirlineAndPermission(userName,airlineName,permission);
+
+        System.out.println("Permission To Be Granted"+permissionToBeGranted);
+        if(airlineStaffByName==null){
+            // 查无此人
+            statusMapping.put("nameValid",false);
+        }
+        if(airlineStaffByName !=null){
+            Set<String> permission_list =  new HashSet<>(airlineStaffByName.getPermissionDescription());
+            if(permission_list.containsAll(permissionToBeGranted)) {
+                System.out.println("Permission List" + permission_list);
+                statusMapping.put("permissionValid",false);
+            }
+        }
+        return statusMapping;
+    }
+
+    public void grantAirlineStaff(GrantUtils grantUtils){
+
+        airlineStaffDao.grantAirlineStaff(grantUtils);
     }
 
     public Airplane findAirplane(Airplane airplane){

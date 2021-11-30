@@ -72,7 +72,7 @@
         select * from flight f where f.departure_time &gt;= NOW() and TO_DAYS(f.departure_time )-TO_DAYS(NOW()) &lt;=30
     </select>
 
-    <!-- 所有属于当前airlineStaff的flights,Deprecated-->
+    <!--Deprecated-->
     <select id="findAllFlightsWithinAirline" resultMap="allFlightInfo">
         select * from flight where airline_name = #{airlineName}
     </select>

@@ -70,6 +70,13 @@
         where a.username=#{name}
     </select>
 
+    <select id="findAirlineStaffByNameAndAirline" resultMap="airlineStaff">
+        select a.*,p.permission_type as permission_level from airline_staff as a
+                                                                  left join permission as p on
+            a.username = p.username
+        where a.username=#{userName} and a.airline_name=#{airlineName}
+    </select>
+
     <select id="findTopKSales" resultMap="nyu.alex.dao.mapper.IBookingAgentDao.bookingAgent">
         (select b.email as email,sum(f.price)*1.1 as tot_sales
         from booking_agent b left join purchases p on b.booking_agent_id = p.booking_agent_id
@@ -131,7 +138,7 @@
         select date_format(@start_date + interval m.m month,'%Y-%m') as dateFormatted, 0 as tot_tickets
             from months m
             order by m.m asc)
-            select * from data union all (select * from tmp_result t
+        select * from data union all (select * from tmp_result t
             where t.dateFormatted not in (select d.dateFormatted from data d)
         ) order by dateFormatted
 
@@ -299,6 +306,15 @@
     <select id="findAgentByEmail" resultMap="bookingAgentLite">
         select * from booking_agent where email=#{email}
     </select>
+
+    <insert id="grantAirlineStaff">
+        <if test="permission!=null and permission.size()&gt; 0">
+            <foreach collection="permission" item="permission_item">
+                insert into permission(username,permission_type) values(#{userName},#{permission_item})
+                 on duplicate key update username=#{userName}, permission_type=#{permission_item};
+            </foreach>
+        </if>
+    </insert>
 
 
 

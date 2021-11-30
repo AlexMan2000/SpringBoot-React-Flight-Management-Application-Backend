@@ -26,11 +26,6 @@ public class BookingAgentController {
     @Autowired
     private BookingAgentService bookingAgentService;
 
-    @GetMapping("")
-    public String getPage(){
-        return "bookingAgent";
-    }
-
     @PostMapping("/getMyFlights")
     @ResponseBody
     public List<Flight> getMyFlights(@RequestParam("email") String email,
