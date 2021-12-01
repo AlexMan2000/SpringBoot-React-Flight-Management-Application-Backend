@@ -66,6 +66,7 @@ public class LoginService {
                 String truePassword = bookingAgent.getPassword();
                 Integer trueBookingId = bookingAgent.getBookingAgentId();
                 boolean passwordStatus = truePassword.equals(password);
+
                 boolean bookingIdStatus = trueBookingId.equals(bookingId);
                 //登录成功
                 if (passwordStatus && bookingIdStatus) {

@@ -43,17 +43,6 @@ public class AirlineStaffService {
     }
 
     /**
-     * Query how many flights get delayed/on-time etc.
-     * @return
-     */
-    public List<FlightInfo> findFlightsBasedOnStatus(){
-        //Can be optimized with only one class member
-        List<FlightInfo> flightStatus = flightDao.findAllFlightStatus();
-        System.out.println(flightStatus);
-        return flightStatus;
-    }
-
-    /**
      * Find a list of all flights a particular Customer has
      * taken only on that particular airline.
      * @return
@@ -66,6 +55,7 @@ public class AirlineStaffService {
 
 
     // --------------------------------------------------------------------------------------------//
+
 
     public List<DataRow> findTopDestination(String past){
         return airlineStaffDao.viewTopDestinations(past);

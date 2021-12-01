@@ -17,6 +17,8 @@ public class StatusMessage {
 
     private boolean status=false;
 
+    private String userType;
+
     private Integer statusCode;
 
     private String statusMessage;
@@ -37,30 +39,6 @@ public class StatusMessage {
         statusMapping.put(4,"Someone Else Already Registered!");
     }
 
-//    public String getStatusMessage() {
-//        return statusMessage;
-//    }
-//
-//    public void setStatusMessage(String statusMessage) {
-//        this.statusMessage = statusMessage;
-//    }
-//
-//    public Map<Integer, String> getStatusMapping() {
-//        return statusMapping;
-//    }
-//
-//    public void setStatusMapping(Map<Integer, String> statusMapping) {
-//        this.statusMapping = statusMapping;
-//    }
-//
-//    public Integer getStatusCode() {
-//        return statusCode;
-//    }
-//
-//    public void setStatusCode(Integer statusCode) {
-//        this.statusCode = statusCode;
-//    }
-//
     public boolean getStatus() {
         return status;
     }

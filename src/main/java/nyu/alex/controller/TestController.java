@@ -17,6 +17,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -25,7 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Controller
-@CrossOrigin
+@CrossOrigin(origins="http://localhost:3000",allowCredentials = "true")
 @RequestMapping("/test")
 public class TestController {
     @Resource

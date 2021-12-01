@@ -31,6 +31,10 @@ public class AirlineStaffController {
     private AirlineStaffService airlineStaffService;
 
 
+    /**
+     * Find all upcoming flights
+     * @return
+     */
     @GetMapping("/findAllFlights")
     @ResponseBody
     public Map<String,Object> findAllFlights(){
@@ -43,6 +47,11 @@ public class AirlineStaffController {
         return results;
     }
 
+    /**
+     * Find all the flights with filters
+     * @param flight
+     * @return
+     */
     @PostMapping("/findAllFilteredFlights")
     @ResponseBody
     public Map<String,Object> findAllFilteredFlights(@RequestBody Flight flight){
@@ -55,7 +64,13 @@ public class AirlineStaffController {
         return results;
     }
 
-    // For the airline company te user works for
+    /**
+     * Find view reports for a given airlineStaff
+     * @param airlineName
+     * @param startDate
+     * @param endDate
+     * @return
+     */
     @GetMapping("/viewReports")
     @ResponseBody
     public List<DataRow> findViewReports(@RequestParam("airlineName") String airlineName,
@@ -86,6 +101,12 @@ public class AirlineStaffController {
         return airlineStaffService.findTopDestination(past);
     }
 
+    /**
+     * Revenue Comparison Function
+     * @param past
+     * @param airlineName
+     * @return
+     */
     @GetMapping("/revenueComparison")
     @ResponseBody
     public List<DataRow> findRevenueInfo(@RequestParam("past") String past,@RequestParam("airlineName") String airlineName){
@@ -93,7 +114,7 @@ public class AirlineStaffController {
     }
 
     /**
-     * Find top K bookingAgent based on sales or commission.
+     * Find top K bookingAgent based on sales or commission with date range
      * @param type
      * @param past
      * @param K
@@ -116,7 +137,7 @@ public class AirlineStaffController {
     }
 
     /**
-     * View Frequent Customers
+     * View Frequent Customers with threshold
      * @param K
      * @param airlineName
      * @return
@@ -129,6 +150,12 @@ public class AirlineStaffController {
         return airlineStaffService.findTopKFreqCustomers(K,airlineName);
     }
 
+
+    /**
+     * Add new flight, with authentification
+     * @param flight
+     * @return
+     */
     @PostMapping("/addNewFlight")
     @ResponseBody
     public String addNewFlight(@RequestBody Flight flight){
@@ -152,6 +179,7 @@ public class AirlineStaffController {
         return "success";
     }
 
+    // Not implemented
     @PostMapping("/updateManyStatus")
     @ResponseBody
     public String updateFlights(@RequestBody Flight flight){
@@ -159,6 +187,11 @@ public class AirlineStaffController {
         return "success";
     }
 
+    /**
+     * Add new airport, with authentication
+     * @param airport
+     * @return
+     */
     @PostMapping("/addNewAirport")
     @ResponseBody
     public String addNewAirport(@RequestBody  Airport airport){
@@ -171,6 +204,11 @@ public class AirlineStaffController {
         return "success";
     }
 
+    /**
+     * Add new airplane, with authentication
+     * @param airplane
+     * @return
+     */
     @PostMapping("/addNewAirplane")
     @ResponseBody
     public String addNewAirplane(@RequestBody Airplane airplane){
@@ -197,6 +235,12 @@ public class AirlineStaffController {
         return "success";
     }
 
+    /**
+     * See if the bookingAgent to be added exists in the database in the first place
+     * @param email
+     * @param airlineName
+     * @return
+     */
     @PostMapping("/validateBookingAgent")
     @ResponseBody
     public Map<String,Boolean> validateBookingAgent(@RequestParam("email") String email,
@@ -204,6 +248,11 @@ public class AirlineStaffController {
         return airlineStaffService.validateAgent(email, airlineName);
     }
 
+    /**
+     * See if the permission level or levels to be granted has already existed in the database.
+     * @param grantUtils
+     * @return
+     */
     @PostMapping("/validatePermission")
     @ResponseBody
     public Map<String,Boolean> validatePermission(@RequestBody GrantUtils grantUtils){
@@ -211,6 +260,12 @@ public class AirlineStaffController {
         return airlineStaffService.validateGrantPermission(grantUtils);
     }
 
+    /**
+     * Add booking agent for a given airline. Insert into the booking_agent_work_for table.
+     * @param email
+     * @param airlineName
+     * @return
+     */
     @PostMapping("/addBookingAgent")
     @ResponseBody
     public Map<String,Boolean> addBookingAgent(@RequestParam("email") String email,
@@ -224,6 +279,11 @@ public class AirlineStaffController {
         return stringBooleanMap;
     }
 
+    /**
+     * First validate if existed, then perform the insertion.
+     * @param grantUtils
+     * @return
+     */
     @PostMapping("/grantPermission")
     @ResponseBody
     public Map<String,Boolean> grantPermission(@RequestBody GrantUtils grantUtils){

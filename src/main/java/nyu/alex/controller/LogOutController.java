@@ -15,13 +15,18 @@ import javax.servlet.http.HttpSession;
 @RequestMapping("/logout")
 public class LogOutController {
 
+    /**
+     * Log user out
+     * @param request
+     * @return
+     */
     @GetMapping("")
     public String logOutUser(HttpServletRequest request){
         HttpSession session = request.getSession();
 
         session.invalidate();
 
-        return "redirect:/index";
+        return "success";
     }
 
 
