@@ -2,6 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 
 <mapper namespace="nyu.alex.dao.mapper.IAirlineStaffDao">
+    <resultMap id="airplane" type="Airplane">
+        <id column="airplane_id" property="id"></id>
+        <id column="airline_name" property="airline"></id>
+        <result column="seats" property="seats"></result>
+    </resultMap>
+
 
     <resultMap id="bookingAgentLite" type="BookingAgent">
         <id property="email" column="email"></id>
@@ -135,11 +141,13 @@
                 from months
                 where m &lt;= 11
                 )
-        select date_format(@start_date + interval m.m month,'%Y-%m') as dateFormatted, 0 as tot_tickets
-            from months m
-            order by m.m asc)
+                select date_format(@start_date + interval m.m month,'%Y-%m') as dateFormatted, 0 as tot_tickets
+                from months m
+                order by m.m asc
+        )
+
         select * from data union all (select * from tmp_result t
-            where t.dateFormatted not in (select d.dateFormatted from data d)
+        where t.dateFormatted not in (select d.dateFormatted from data d)
         ) order by dateFormatted
 
 
@@ -248,8 +256,12 @@
         insert into airplane values(#{airline},#{id},#{seats})
     </insert>
 
-    <select id="findAirplane" parameterType="nyu.alex.dao.entity.Airplane" resultType="nyu.alex.dao.entity.Airplane">
+    <select id="findAirplane" parameterType="nyu.alex.dao.entity.Airplane" resultMap="airplane">
         select * from airplane where airline_name=#{airline} and airplane_id=#{id}
+    </select>
+
+    <select id="findAllAirplanesForAirline" resultMap="airplane">
+        select * from airplane where airline_name=#{airlineName}
     </select>
 
     <insert id="insertNewAirport" parameterType="nyu.alex.dao.entity.Airport">

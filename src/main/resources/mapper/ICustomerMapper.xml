@@ -37,7 +37,7 @@
     </resultMap>
 
     <resultMap id="chartModel" type="nyu.alex.utils.dataUtils.DataRow">
-        <result property="interval" column="dateFormatted" javaType="Date" jdbcType="DATE"></result>
+        <result property="interval" column="dateFormatted" ></result>
         <result property="timestamp" column="date"></result>
         <result property="value" column="spending" javaType="Float" jdbcType="NUMERIC"></result>
     </resultMap>
@@ -147,11 +147,11 @@
                     and f.status = #{status}
                 </when>
         <otherwise>
-            and f.depature_time &gt;= NOW()
+            and f.departure_time &gt;= NOW()
         </otherwise>
             </choose>
         </where>
-        group by date_format(p.purchase_time,'%Y-%m')
+        group by date_format(p.purchase_date,'%Y-%m')
     </select>
 
     <insert id="insertCustomer" parameterType="nyu.alex.dao.entity.Customer">

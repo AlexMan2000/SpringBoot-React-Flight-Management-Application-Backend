@@ -213,12 +213,20 @@ public class AirlineStaffService {
        return airlineStaffDao.findAirplane(airplane);
     }
 
+    public List<Airplane> findAllAirplanesForAirline(String airlineName){
+        return airlineStaffDao.findAllAirplanesForAirline(airlineName);
+    }
+
     public void insertNewFlight(Flight flight){
         airlineStaffDao.insertNewFlight(flight);
     }
 
     public List<Flight> findAllFlights(){
         return flightDao.findAllFlights();
+    }
+
+    public List<Flight> findAllFlightsForAirline(String airlineName){
+        return flightDao.findAllFlightsForAirline(airlineName);
     }
 
     public List<Flight> findAllFilteredFlights(Flight flight){

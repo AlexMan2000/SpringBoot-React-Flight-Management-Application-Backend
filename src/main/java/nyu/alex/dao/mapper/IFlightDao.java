@@ -29,6 +29,8 @@ public interface IFlightDao {
     //Deprecated
     List<FlightInfo> findAllFlightStatus();
 
+    List<Flight> findAllFlightsAirlineStaffDefault(@Param("airlineName") String airlineName);
+
     List<Flight> findAllFlightsForAirline(@Param("airlineName") String airline_name);
 
     Flight findFlightByNum(String flight_num);

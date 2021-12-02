@@ -34,6 +34,8 @@ public interface IAirlineStaffDao {
 
     Airplane findAirplane(Airplane airplane);
 
+    List<Airplane> findAllAirplanesForAirline(@Param("airlineName") String airlineName);
+
     void insertNewAirport(Airport airport);
 
     Airport findAirport(Airport airport);

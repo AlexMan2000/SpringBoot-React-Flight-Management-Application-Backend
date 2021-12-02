@@ -69,12 +69,10 @@
 
     <!-- airlineStaff的 默认视图 -->
     <select id="findAllFlightsAirlineStaffDefault" resultMap="allFlightInfo">
-        select * from flight f where f.departure_time &gt;= NOW() and TO_DAYS(f.departure_time )-TO_DAYS(NOW()) &lt;=30
-    </select>
-
-    <!--Deprecated-->
-    <select id="findAllFlightsWithinAirline" resultMap="allFlightInfo">
-        select * from flight where airline_name = #{airlineName}
+        select * from flight f
+        where f.departure_time &gt;= NOW()
+          and f.airline_name = #{airlineName}
+          and TO_DAYS(f.departure_time )-TO_DAYS(NOW()) &lt;=30
     </select>
 
     <!-- 一架飞机上的乘客-->
@@ -142,13 +140,7 @@
     </select>
 
     <select id="findAllFlightsForAirline" parameterType="String" resultMap="allFlightInfo">
-        select f.*,c.email as email,c.name as name from flight as f
-            left join ticket as t
-                join purchases p on t.ticket_id = p.ticket_id
-        on f.flight_num = t.flight_num
-        and f.airline_name = t.airline_name
-        left join customer c on p.customer_email = c.email
-        where f.airline_name=#{airlineName}
+        select * from flight f where f.departure_time &gt;= NOW() and f.airline_name=#{airlineName}
     </select>
 
     <select id="findAllAvailableFlights" resultMap="allFlightInfoLite">

@@ -43,6 +43,7 @@ public class IndexController {
 //        System.out.println(date);
 //        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 //        Date format = df.parse(date);
+        System.out.println(flight);
         return baseService.searchFlights(flight);
     }
 

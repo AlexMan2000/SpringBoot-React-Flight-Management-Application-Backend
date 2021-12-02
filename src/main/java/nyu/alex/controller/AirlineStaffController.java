@@ -47,6 +47,20 @@ public class AirlineStaffController {
         return results;
     }
 
+    @GetMapping("/findAllFlightsForAirline")
+    @ResponseBody
+    public Map<String,Object> findAllFlightsForAirline(@RequestParam("airlineName") String airlineName){
+        List<Flight> allFlights = airlineStaffService.findAllFlightsForAirline(airlineName);
+        System.out.println("方法执行");
+        System.out.println("+=============================");
+        Map<String,Object> results = new HashMap<>();
+        results.put("records",allFlights);
+        results.put("total",allFlights.size());
+        results.put("success",true);
+
+        return results;
+    }
+
     /**
      * Find all the flights with filters
      * @param flight
@@ -220,6 +234,12 @@ public class AirlineStaffController {
         return "success";
     }
 
+    @GetMapping("/getAllAirplanes")
+    @ResponseBody
+    public List<Airplane> showAllAirplanesForAirline(@RequestParam("airlineName") String airlineName){
+        return airlineStaffService.findAllAirplanesForAirline(airlineName);
+    }
+
     /**
      * Check if the airplane model exists.
      * @param airplane
@@ -274,8 +294,8 @@ public class AirlineStaffController {
         System.out.println(stringBooleanMap);
         if(stringBooleanMap.get("emailValid")==true&&stringBooleanMap.get("workingValid")==true){
             airlineStaffService.addAgent(email,airlineName);
-            stringBooleanMap.put("success",true); }
-        stringBooleanMap.put("success",false);
+            stringBooleanMap.put("success",true); }else{
+        stringBooleanMap.put("success",false);}
         return stringBooleanMap;
     }
 

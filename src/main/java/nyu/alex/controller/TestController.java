@@ -198,5 +198,11 @@ public class TestController {
         return "success";
     }
 
+    @PostMapping("/testAirline")
+    @ResponseBody
+    public List<Flight> testAirline(@RequestParam("airlineName") String airlineName){
+        return flightDao.findAllFlightsForAirline("Spring Airlines");
+    }
+
 
 }
