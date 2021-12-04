@@ -84,7 +84,8 @@
     </select>
 
     <select id="findTopKSales" resultMap="nyu.alex.dao.mapper.IBookingAgentDao.bookingAgent">
-        (select b.email as email,sum(f.price)*1.1 as tot_sales
+        with tmp_result as
+            (select b.email as email,sum(f.price)*1.1 as tot_sales
         from booking_agent b left join purchases p on b.booking_agent_id = p.booking_agent_id
         left join ticket t on p.ticket_id = t.ticket_id
         left join flight f on t.airline_name = f.airline_name and t.flight_num = f.flight_num
@@ -93,7 +94,10 @@
             and p.purchase_date > date_sub(NOW(),interval #{past} MONTH)
             group by b.email
             order by tot_sales desc
-        </where>)UNION(select email,0 as tot_sales from booking_agent)
+        </where>)
+        select * from tmp_result
+                UNION ALL(select email,0 as tot_sales from booking_agent where email not in
+                    (select t.email from tmp_result t ))
         <if test="K !=null">
             limit #{K}
         </if>
@@ -101,7 +105,7 @@
 
 
     <select id="findTopKCommission" resultMap="nyu.alex.dao.mapper.IBookingAgentDao.bookingAgent">
-        (select b.email as email,
+        with tmp_result as  (select b.email as email,
         sum(f.price)*0.1
         as tot_comm from booking_agent b left join purchases p on b.booking_agent_id = p.booking_agent_id
         left join ticket t on p.ticket_id = t.ticket_id
@@ -111,7 +115,11 @@
             and p.purchase_date > date_sub(NOW(),interval 12 MONTH)
             group by b.email
             order by tot_comm desc
-        </where>)UNION(select email,0 as tot_sales from booking_agent)
+        </where>)
+               select * from tmp_result
+
+                UNION ALL (select email,0 as tot_sales from booking_agent
+                    where email not in(select t.email from tmp_result t))
         <if test="K !=null">
             limit #{K}
         </if>
@@ -231,7 +239,8 @@
     </select>
 
     <select id="findFreqCustomers" parameterType="java.sql.Date" resultMap="nyu.alex.dao.mapper.ICustomerDao.customer">
-        select distinct c.*,count(p.ticket_id) as total_tickets from customer c left join purchases p on c.email = p.customer_email
+        with tmp_result as
+            (select distinct c.*,count(p.ticket_id) as total_tickets from customer c left join purchases p on c.email = p.customer_email
         left join ticket t on p.ticket_id = t.ticket_id
         left join flight f on t.airline_name = f.airline_name and t.flight_num = f.flight_num
         <where>
@@ -239,7 +248,11 @@
                 and f.airline_name = #{airlineName}
             </if>
         </where>
-        group by c.email order by total_tickets desc
+        group by c.email order by total_tickets desc)
+        select * from tmp_result UNION ALL(
+            select c.* ,0 as total_tickets from customer c
+            where c.email not in (select t.email from tmp_result t)
+        )
     </select>
 
     <!--Deprecated-->
@@ -283,8 +296,13 @@
     </select>
 
     <insert id="insertNewAirlineStaff" parameterType="nyu.alex.dao.entity.AirlineStaff">
-        insert into airline_staff values
-        (#{username},#{password},#{firstName},#{lastName},#{birthday},#{airlineName})
+
+    {
+    call insertAirlineStaff(#{username,mode=IN,jdbcType=VARCHAR},
+        #{password,mode=IN,jdbcType=VARCHAR},#{firstName,mode=IN,jdbcType=VARCHAR},
+        #{lastName,mode=IN,jdbcType=VARCHAR},#{birthday,mode=IN,jdbcType=DATE},
+        #{airlineName,mode=IN,jdbcType=VARCHAR})
+    }
     </insert>
 
     <!-- 已测试-->

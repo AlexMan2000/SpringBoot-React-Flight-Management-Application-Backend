@@ -3,10 +3,12 @@ package nyu.alex.service;
 import nyu.alex.dao.entity.Customer;
 import nyu.alex.dao.entity.Flight;
 import nyu.alex.dao.mapper.ICustomerDao;
+import nyu.alex.dao.mapper.IFlightDao;
 import nyu.alex.utils.dataUtils.DataRow;
 import nyu.alex.utils.dataUtils.TicketInfo;
 import nyu.alex.utils.dataUtils.TrackSpendingUtils;
 import nyu.alex.utils.serviceUtils.PurchaseUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -21,6 +23,9 @@ public class CustomerService {
 
     @Resource
     private ICustomerDao customerDao;
+
+    @Autowired
+    private IFlightDao flightDao;
 
     public List<Flight> findAllTakenFlights(String email,String airlineName){
 
@@ -48,6 +53,11 @@ public class CustomerService {
     public List<DataRow> trackSpending(TrackSpendingUtils track){
         List<DataRow> dataRows = customerDao.trackSpending(track);
         return dataRows;
+    }
+
+    public List<Flight> findAllAvailableFlights(Flight flight){
+        List<Flight> allAvailableFlights = flightDao.findAllAvailableFlights(flight);
+        return allAvailableFlights;
     }
 
 }

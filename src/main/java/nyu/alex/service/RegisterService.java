@@ -44,18 +44,19 @@ public class RegisterService {
     public void registerCustomer(Customer customer) {
         //对password进行md5操作,在后端转化
         String password = customer.getPassword();
-//        customer.setPassword(encodePassword(password));
+        customer.setPassword(encodePassword(password));
         customerDao.insertCustomer(customer);
     }
     public void registerAirlineStaff(AirlineStaff airlineStaff) {
+        System.out.println(airlineStaff);
         String password = airlineStaff.getPassword();
-//        airlineStaff.setPassword(encodePassword(password));
+        airlineStaff.setPassword(encodePassword(password));
         airlineStaffDao.insertNewAirlineStaff(airlineStaff);
     }
 
     public void registerBookingAgent(BookingAgent bookingAgent) {
         String password = bookingAgent.getPassword();
-//        bookingAgent.setPassword(encodePassword(password));
+        bookingAgent.setPassword(encodePassword(password));
         bookingAgentDao.insertBookingAgent(bookingAgent);
     }
 

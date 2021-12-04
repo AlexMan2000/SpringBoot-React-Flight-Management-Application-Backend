@@ -70,8 +70,6 @@ public class LoginController {
     @ResponseBody
     public StatusMessage validate(HttpServletRequest request, HttpServletResponse response, @RequestBody LoginUtils loginUtils){
 
-        System.out.println("执行validate方法");
-        System.out.println("+++++++++++++++++++++++++++");
         HttpSession session = request.getSession();
 
 

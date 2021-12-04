@@ -1,28 +1,23 @@
 package nyu.alex.controller;
 
+import com.alibaba.fastjson.JSON;
+import nyu.alex.aop.NeedOperator;
+import nyu.alex.aop.NeedStaff;
 import nyu.alex.dao.entity.*;
-import nyu.alex.dao.mapper.IAirlineStaffDao;
-import nyu.alex.dao.mapper.IAirplaneDao;
-import nyu.alex.dao.mapper.IAirportDao;
-import nyu.alex.dao.mapper.IFlightDao;
+import nyu.alex.aop.NeedAdmin;
+import nyu.alex.aop.NeedLogin;
 import nyu.alex.service.AirlineStaffService;
-import nyu.alex.utils.dataUtils.DataRow;
 import nyu.alex.utils.serviceUtils.GrantUtils;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Controller
+@RestController
 @CrossOrigin("http://localhost:3000/*")
 @RequestMapping("/airlineStaff")
 public class AirlineStaffController {
@@ -35,30 +30,27 @@ public class AirlineStaffController {
      * Find all upcoming flights
      * @return
      */
+    @NeedStaff
     @GetMapping("/findAllFlights")
-    @ResponseBody
-    public Map<String,Object> findAllFlights(){
+    public String findAllFlights(){
         List<Flight> allFlights = airlineStaffService.findAllFlights();
         Map<String,Object> results = new HashMap<>();
         results.put("records",allFlights);
         results.put("total",allFlights.size());
         results.put("success",true);
 
-        return results;
+        return JSON.toJSONString(results);
     }
 
+    @NeedStaff
     @GetMapping("/findAllFlightsForAirline")
-    @ResponseBody
-    public Map<String,Object> findAllFlightsForAirline(@RequestParam("airlineName") String airlineName){
+    public String findAllFlightsForAirline(@RequestParam("airlineName") String airlineName){
         List<Flight> allFlights = airlineStaffService.findAllFlightsForAirline(airlineName);
-        System.out.println("方法执行");
-        System.out.println("+=============================");
         Map<String,Object> results = new HashMap<>();
         results.put("records",allFlights);
         results.put("total",allFlights.size());
         results.put("success",true);
-
-        return results;
+        return  JSON.toJSONString(results);
     }
 
     /**
@@ -66,16 +58,16 @@ public class AirlineStaffController {
      * @param flight
      * @return
      */
+    @NeedStaff
     @PostMapping("/findAllFilteredFlights")
-    @ResponseBody
-    public Map<String,Object> findAllFilteredFlights(@RequestBody Flight flight){
+    public String findAllFilteredFlights(@RequestBody Flight flight){
         List<Flight> allFlights = airlineStaffService.findAllFilteredFlights(flight);
         Map<String,Object> results = new HashMap<>();
         results.put("records",allFlights);
         results.put("total",allFlights.size());
         results.put("success",true);
 
-        return results;
+        return JSON.toJSONString(results);
     }
 
     /**
@@ -85,9 +77,9 @@ public class AirlineStaffController {
      * @param endDate
      * @return
      */
+    @NeedStaff
     @GetMapping("/viewReports")
-    @ResponseBody
-    public List<DataRow> findViewReports(@RequestParam("airlineName") String airlineName,
+    public String findViewReports(@RequestParam("airlineName") String airlineName,
                                          @RequestParam(value="startDate",required = false) String startDate,
                                          @RequestParam(value="endDate",required = false) String endDate){
         Date startDateObject = null;
@@ -101,7 +93,7 @@ public class AirlineStaffController {
         }
 
 
-        return airlineStaffService.findViewReport(airlineName,startDateObject,endDateObject);
+        return JSON.toJSONString(airlineStaffService.findViewReport(airlineName,startDateObject,endDateObject));
     }
 
     /**
@@ -109,10 +101,10 @@ public class AirlineStaffController {
      * @param past
      * @return
      */
+    @NeedStaff
     @GetMapping("/topDestinations")
-    @ResponseBody
-    public List<DataRow> findTopDestinations(@RequestParam("past") String past){
-        return airlineStaffService.findTopDestination(past);
+    public String findTopDestinations(@RequestParam("past") String past){
+        return JSON.toJSONString(airlineStaffService.findTopDestination(past));
     }
 
     /**
@@ -122,9 +114,8 @@ public class AirlineStaffController {
      * @return
      */
     @GetMapping("/revenueComparison")
-    @ResponseBody
-    public List<DataRow> findRevenueInfo(@RequestParam("past") String past,@RequestParam("airlineName") String airlineName){
-        return airlineStaffService.findRevenueInfo(past,airlineName);
+    public String findRevenueInfo(@RequestParam("past") String past,@RequestParam("airlineName") String airlineName){
+        return JSON.toJSONString(airlineStaffService.findRevenueInfo(past,airlineName));
     }
 
     /**
@@ -134,19 +125,19 @@ public class AirlineStaffController {
      * @param K
      * @return
      */
+    @NeedStaff
     @GetMapping("/getTopK")
-    @ResponseBody
-    public List<DataRow> findTopK(@RequestParam("type") String type,
+    public String findTopK(@RequestParam("type") String type,
                                   @RequestParam(value = "past",required = false) String past,
                                   @RequestParam("K") Integer K){
         if(type.equals("sales")){
             if(past.equals("month")){
-            return airlineStaffService.findTopKSales(1,K);
+            return JSON.toJSONString(airlineStaffService.findTopKSales(1,K));
             }else{
-                return airlineStaffService.findTopKSales(12,K);
+                return JSON.toJSONString(airlineStaffService.findTopKSales(12,K));
             }
         }else{
-            return airlineStaffService.findTopKCommission(K);
+            return JSON.toJSONString(airlineStaffService.findTopKCommission(K));
         }
     }
 
@@ -156,12 +147,12 @@ public class AirlineStaffController {
      * @param airlineName
      * @return
      */
+    @NeedStaff
     @GetMapping("/getTopKCustomers")
-    @ResponseBody
-    public List<Customer> getTopKCustomersWithFlights(@RequestParam("K") String K,
+    public String getTopKCustomersWithFlights(@RequestParam("K") String K,
                                                       @RequestParam(value="airlineName",required=false) String airlineName){
 
-        return airlineStaffService.findTopKFreqCustomers(K,airlineName);
+        return JSON.toJSONString(airlineStaffService.findTopKFreqCustomers(K,airlineName));
     }
 
 
@@ -170,8 +161,8 @@ public class AirlineStaffController {
      * @param flight
      * @return
      */
+    @NeedAdmin
     @PostMapping("/addNewFlight")
-    @ResponseBody
     public String addNewFlight(@RequestBody Flight flight){
         Flight flightRes = airlineStaffService.findFlight(flight);
         if(flightRes!=null){
@@ -186,8 +177,8 @@ public class AirlineStaffController {
      * @param flight
      * @return
      */
+    @NeedOperator
     @PostMapping("/updateStatus")
-    @ResponseBody
     public String updateFlight(@RequestBody Flight flight){
         airlineStaffService.updateFlight(flight);
         return "success";
@@ -195,7 +186,6 @@ public class AirlineStaffController {
 
     // Not implemented
     @PostMapping("/updateManyStatus")
-    @ResponseBody
     public String updateFlights(@RequestBody Flight flight){
         airlineStaffService.updateFlights(flight);
         return "success";
@@ -206,8 +196,8 @@ public class AirlineStaffController {
      * @param airport
      * @return
      */
+    @NeedAdmin
     @PostMapping("/addNewAirport")
-    @ResponseBody
     public String addNewAirport(@RequestBody  Airport airport){
         Airport airportRes = airlineStaffService.findAirport(airport);
         System.out.println(airportRes);
@@ -224,7 +214,7 @@ public class AirlineStaffController {
      * @return
      */
     @PostMapping("/addNewAirplane")
-    @ResponseBody
+    @NeedAdmin
     public String addNewAirplane(@RequestBody Airplane airplane){
         Airplane airplaneRes = airlineStaffService.findAirplane(airplane);
         if(airplaneRes!=null){
@@ -235,9 +225,9 @@ public class AirlineStaffController {
     }
 
     @GetMapping("/getAllAirplanes")
-    @ResponseBody
-    public List<Airplane> showAllAirplanesForAirline(@RequestParam("airlineName") String airlineName){
-        return airlineStaffService.findAllAirplanesForAirline(airlineName);
+    @NeedStaff
+    public String showAllAirplanesForAirline(@RequestParam("airlineName") String airlineName){
+        return JSON.toJSONString(airlineStaffService.findAllAirplanesForAirline(airlineName));
     }
 
     /**
@@ -246,7 +236,7 @@ public class AirlineStaffController {
      * @return
      */
     @PostMapping("/validateNewAirplane")
-    @ResponseBody
+    @NeedStaff
     public String validateNewAirplane(@RequestBody Airplane airplane){
         Airplane airplaneRes = airlineStaffService.findAirplane(airplane);
         if(airplaneRes==null){
@@ -262,10 +252,11 @@ public class AirlineStaffController {
      * @return
      */
     @PostMapping("/validateBookingAgent")
-    @ResponseBody
-    public Map<String,Boolean> validateBookingAgent(@RequestParam("email") String email,
+    @NeedAdmin
+    public String validateBookingAgent(@RequestParam("email") String email,
                                                    @RequestParam("airlineName") String airlineName){
-        return airlineStaffService.validateAgent(email, airlineName);
+        return JSON.toJSONString(airlineStaffService.validateAgent(email, airlineName));
+
     }
 
     /**
@@ -274,10 +265,10 @@ public class AirlineStaffController {
      * @return
      */
     @PostMapping("/validatePermission")
-    @ResponseBody
-    public Map<String,Boolean> validatePermission(@RequestBody GrantUtils grantUtils){
+    @NeedAdmin
+    public String validatePermission(@RequestBody GrantUtils grantUtils){
 
-        return airlineStaffService.validateGrantPermission(grantUtils);
+        return JSON.toJSONString(airlineStaffService.validateGrantPermission(grantUtils));
     }
 
     /**
@@ -287,16 +278,17 @@ public class AirlineStaffController {
      * @return
      */
     @PostMapping("/addBookingAgent")
-    @ResponseBody
-    public Map<String,Boolean> addBookingAgent(@RequestParam("email") String email,
+    @NeedAdmin
+    public String addBookingAgent(@RequestParam("email") String email,
                                   @RequestParam("airlineName") String airlineName){
-        Map<String, Boolean> stringBooleanMap = validateBookingAgent(email, airlineName);
+        Map<String, Boolean> stringBooleanMap = JSON.parseObject(validateBookingAgent(email, airlineName),Map.class);
+        System.out.println("不知道行不行");
         System.out.println(stringBooleanMap);
         if(stringBooleanMap.get("emailValid")==true&&stringBooleanMap.get("workingValid")==true){
             airlineStaffService.addAgent(email,airlineName);
             stringBooleanMap.put("success",true); }else{
         stringBooleanMap.put("success",false);}
-        return stringBooleanMap;
+        return JSON.toJSONString(stringBooleanMap);
     }
 
     /**
@@ -305,15 +297,15 @@ public class AirlineStaffController {
      * @return
      */
     @PostMapping("/grantPermission")
-    @ResponseBody
-    public Map<String,Boolean> grantPermission(@RequestBody GrantUtils grantUtils){
-        Map<String, Boolean> stringBooleanMap = validatePermission(grantUtils);
+    @NeedAdmin
+    public String grantPermission(@RequestBody GrantUtils grantUtils){
+        Map<String, Boolean> stringBooleanMap = JSON.parseObject(validatePermission(grantUtils),Map.class);
         System.out.println(stringBooleanMap);
         if(stringBooleanMap.get("nameValid")==true&&stringBooleanMap.get("permissionValid")==true){
             airlineStaffService.grantAirlineStaff(grantUtils);
             stringBooleanMap.put("success",true); }
         else{stringBooleanMap.put("success",false);}
-        return stringBooleanMap;
+        return JSON.toJSONString(stringBooleanMap);
     }
 
     /**
@@ -323,7 +315,7 @@ public class AirlineStaffController {
      * @return
      */
     @PostMapping("/deleteFlight")
-    @ResponseBody
+    @NeedOperator
     public String deleteFlight(@RequestParam("flightNum") String flightNum,@RequestParam("airlineName") String airlineName){
         airlineStaffService.deleteFlight(flightNum,airlineName);
         return "success";

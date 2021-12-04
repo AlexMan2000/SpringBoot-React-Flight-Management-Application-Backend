@@ -1,5 +1,8 @@
 package nyu.alex.controller;
 
+import com.alibaba.fastjson.JSON;
+import nyu.alex.aop.NeedAgent;
+import nyu.alex.aop.NeedCustomer;
 import nyu.alex.dao.entity.Flight;
 import nyu.alex.dao.mapper.ICustomerDao;
 import nyu.alex.dao.mapper.IFlightDao;
@@ -23,7 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Controller
+@RestController
 @CrossOrigin("http://localhost:3000/*")
 @RequestMapping("/customer")
 public class CustomerController {
@@ -41,9 +44,17 @@ public class CustomerController {
         bin.registerCustomEditor(Date.class,cust);
     }
 
+
+    @NeedCustomer
+    @PostMapping("/getAllAvailableFlights")
+    public String getAllAvailableFlights(@RequestBody Flight flight){
+        List<Flight> allAvailableFlights = customerService.findAllAvailableFlights(flight);
+        return JSON.toJSONString(allAvailableFlights);
+    }
+
+    @NeedCustomer
     @PostMapping("/getMyFlights")
-    @ResponseBody
-    public List<TicketInfo> getMyFilteredFlights(@RequestParam("email") String email,
+    public String getMyFilteredFlights(@RequestParam("email") String email,
                                                  @RequestParam(value = "sourceAirport",required = false) String sourceAirport,
                                                  @RequestParam(value = "destAirport",required = false) String destAirport,
                                                  @RequestParam(value = "startDate",required = false) String startDate,
@@ -59,13 +70,12 @@ public class CustomerController {
             parsedEndDate = df.parse(endDate);
         }
         List<TicketInfo> flights = customerService.findMyFilteredFlights(email,sourceAirport,destAirport,parsedStartDate,parsedEndDate,status);
-        System.out.println(flights);
-        return flights;
+        return JSON.toJSONString(flights);
     }
 
+    @NeedCustomer
     @PostMapping("/purchaseTicket")
-    @ResponseBody
-    public Map<String,Object> purchaseTicket(@RequestBody PurchaseUtils purchaseForm){
+    public String purchaseTicket(@RequestBody PurchaseUtils purchaseForm){
         System.out.println(purchaseForm);
         Map<String,Object> returnValues = new HashMap<>();
         returnValues.put("ticketNum","");
@@ -73,18 +83,16 @@ public class CustomerController {
         returnValues.put("flightNum",purchaseForm.getFlightNum());
         returnValues.put("airlineName",purchaseForm.getAirlineName());
         returnValues.put("email",purchaseForm.getEmail());
-//        returnValues.put("bookingAgentId",purchaseForm.getBookingAgentId());
         customerService.purchaseTicket(returnValues);
-        return returnValues;
+        return JSON.toJSONString(returnValues);
     }
 
 
+    @NeedCustomer
     @PostMapping("/trackSpending")
-    @ResponseBody
-    public List<DataRow> trackSpending(@RequestBody TrackSpendingUtils track){
-//        Map<Date,Float> trackedSpending = new HashMap<>();
+    public String trackSpending(@RequestBody TrackSpendingUtils track){
         List<DataRow> dataRow = customerService.trackSpending(track);
-        return dataRow;
+        return JSON.toJSONString(dataRow);
 
     }
 

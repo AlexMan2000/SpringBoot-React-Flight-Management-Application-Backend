@@ -1,5 +1,7 @@
 package nyu.alex.controller;
 
+import com.alibaba.fastjson.JSON;
+import nyu.alex.aop.NeedAgent;
 import nyu.alex.dao.entity.BookingAgent;
 import nyu.alex.dao.entity.Customer;
 import nyu.alex.dao.entity.Flight;
@@ -18,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Controller
+@RestController
 @CrossOrigin
 @RequestMapping("/bookingAgent")
 public class BookingAgentController {
@@ -26,22 +28,21 @@ public class BookingAgentController {
     @Autowired
     private BookingAgentService bookingAgentService;
 
+    @NeedAgent
     @PostMapping("/getMyFlights")
-    @ResponseBody
-    public List<Flight> getMyFlights(@RequestParam("email") String email,
+    public String getMyFlights(@RequestParam("email") String email,
                                      @RequestParam(value="default",required=false) Boolean defaultValue,
                                      @RequestParam(value="sourceAirport",required=false) String sourceAirport,
                                      @RequestParam(value="destAirport",required=false) String destAirport,
                                      @RequestParam(value="startDate",required=false) String startDate,
                                      @RequestParam(value="endDate",required=false) String endDate){
-        System.out.println("haha");
         List<Flight> myFlights = bookingAgentService.getMyFlights(email, defaultValue,sourceAirport, destAirport, startDate, endDate);
-        return myFlights;
+        return JSON.toJSONString(myFlights);
     }
 
+    @NeedAgent
     @PostMapping("/purchaseTicket")
-    @ResponseBody
-    public Map<String,Object> purchaseTicket(@RequestBody PurchaseUtils purchaseForm){
+    public String purchaseTicket(@RequestBody PurchaseUtils purchaseForm){
         // 由于后端需要调用储存过程，
         Map<String,Object> returnValues = new HashMap<>();
         returnValues.put("ticketNum","");
@@ -52,51 +53,50 @@ public class BookingAgentController {
         returnValues.put("email",purchaseForm.getEmail());
         returnValues.put("bookingAgentId",purchaseForm.getBookingAgentId());
         bookingAgentService.purchaseTicket(returnValues);
-        return returnValues;
+        return JSON.toJSONString(returnValues);
     }
 
+    @NeedAgent
     @PostMapping("/findAllAvailableTickets")
-    @ResponseBody
-    public List<Ticket> findAllAvailableTickets(@RequestParam("airlineName") String airlineName, @RequestParam("flightNum") String flightNum){
+    public String findAllAvailableTickets(@RequestParam("airlineName") String airlineName, @RequestParam("flightNum") String flightNum){
         List<Ticket> allTickets = bookingAgentService.findAllTickets(airlineName, flightNum);
-        return allTickets;
+        return JSON.toJSONString(allTickets);
     }
 
+    @NeedAgent
     @PostMapping("/getAllAvailableFlights")
-    @ResponseBody
-    public List<Flight> getAllAvailableFlights(@RequestBody Flight flight){
+    public String getAllAvailableFlights(@RequestBody Flight flight){
         List<Flight> allAvailableFlights = bookingAgentService.findAllAvailableFlights(flight);
-        return allAvailableFlights;
+        return JSON.toJSONString(allAvailableFlights);
     }
 
+    @NeedAgent
     @GetMapping("/validateCustomer")
-    @ResponseBody
-    public Map<String, Boolean> findCustomerByEmail(@RequestParam("email")String email){
-        return bookingAgentService.validateCustomer(email);
+    public String findCustomerByEmail(@RequestParam("email")String email){
+        return JSON.toJSONString(bookingAgentService.validateCustomer(email));
     }
 
-
+    @NeedAgent
     @GetMapping("/getCommissionInfo")
-    @ResponseBody
-    public BookingAgent getCommissionInfo(@RequestParam("email") String email,
+    public String getCommissionInfo(@RequestParam("email") String email,
                                     @RequestParam("startDate") String startDate,
                                     @RequestParam("endDate") String endDate) throws ParseException {
         Date startDateObject = Date.from(Instant.parse(startDate));
         Date endDateObject = Date.from(Instant.parse(endDate));
         BookingAgent bookingAgentInfo = bookingAgentService.findBookingAgentInfo(email, startDateObject, endDateObject);
 
-        return bookingAgentInfo;
+        return JSON.toJSONString(bookingAgentInfo);
     }
 
+    @NeedAgent
     @GetMapping("/getTopKCommission")
-    @ResponseBody
-    public List<Customer> findTopKCommission(@RequestParam("K") Integer K){
-        return bookingAgentService.findTopKCommssion(K);
+    public String findTopKCommission(@RequestParam("K") Integer K){
+        return JSON.toJSONString(bookingAgentService.findTopKCommssion(K));
     }
 
+    @NeedAgent
     @GetMapping("/getTopKTickets")
-    @ResponseBody
-    public List<Customer> findTopKTickets(@RequestParam("K") Integer K){
-        return bookingAgentService.findTopKTickets(K);
+    public String findTopKTickets(@RequestParam("K") Integer K){
+        return JSON.toJSONString(bookingAgentService.findTopKTickets(K));
     }
 }

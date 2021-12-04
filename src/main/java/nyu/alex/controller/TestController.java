@@ -205,4 +205,14 @@ public class TestController {
     }
 
 
+    // 用户权限认证
+    public String testAOP(@RequestParam("userType") String userType){
+        return null;
+    }
+
+    public String testLogin(){
+        return null;
+    }
+
+
 }
