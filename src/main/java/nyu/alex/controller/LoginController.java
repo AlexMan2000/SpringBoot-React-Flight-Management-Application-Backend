@@ -37,8 +37,6 @@ public class LoginController {
     @PostMapping("/token")
     @ResponseBody
     public StatusMessage tokenAuth(HttpServletRequest request,HttpServletResponse response) {
-        System.out.println("执行tokenAuth方法");
-        System.out.println("=====================================");
         HttpSession session = request.getSession();
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
@@ -49,7 +47,6 @@ public class LoginController {
                     System.out.println(sessionId);
                     if (sessionId.equals(session.getId())) {
                         StatusMessage statusMessage = (StatusMessage) session.getAttribute("userInfo");
-                        System.out.println(statusMessage);
                         return statusMessage;
                     }
                 }
@@ -60,7 +57,8 @@ public class LoginController {
 
 
     /**
-     * 登录方法
+     * Log three types of user in. If login success, store the user info in a session.
+     * If login failed, return statusCode for frontend.
      * @param request
      * @param response
      * @param loginUtils
@@ -72,9 +70,6 @@ public class LoginController {
 
         HttpSession session = request.getSession();
 
-
-//        System.out.println(cookies);
-
         //将用户的登录信息保存到session中, StatusMessage中保存了用户的信息
         StatusMessage statusMessage = loginService.login(loginUtils);
 
@@ -83,9 +78,6 @@ public class LoginController {
         statusMessage.setUserType(loginUtils.getUserType());
         if(status){
             //登录成功将用户信息存入Session对象中
-            System.out.println("登录成功");
-
-
             session.setAttribute("userInfo",statusMessage);
             // 没有活动30分钟后,session失效
             session.setMaxInactiveInterval(30*60);

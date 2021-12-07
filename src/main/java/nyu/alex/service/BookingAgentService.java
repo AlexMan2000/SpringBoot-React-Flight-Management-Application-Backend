@@ -42,8 +42,8 @@ public class BookingAgentService {
                                      Boolean defaultValue,
                                      String sourceAirport,
                                      String destAirport,
-                                     String startDate,
-                                     String endDate){
+                                     Date startDate,
+                                     Date endDate){
          return bookingAgentDao.findMyFlights(email, defaultValue,sourceAirport, destAirport, startDate, endDate);
     }
 

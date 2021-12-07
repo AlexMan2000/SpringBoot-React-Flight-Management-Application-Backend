@@ -35,18 +35,34 @@ public class IndexController {
     @Resource
     private IFlightDao flightDao;
 
+
+    /**
+     * Search for upcoming flights for all users with filters.
+     * @param flight
+     * @return
+     */
     @PostMapping("/searchFlights")
     @ResponseBody
     public String searchFlights(@RequestBody Flight flight) {
         return JSON.toJSONString(baseService.searchFlights(flight));
     }
 
+
+    /**
+     * Search for upcoming flights for all users without filters(default view).
+     * @return
+     */
     @GetMapping("/findAllFlights")
     @ResponseBody
     public String findAllFlights(){
         return JSON.toJSONString(baseService.findAllFlights());
     }
 
+
+    /**
+     * Search all available airports, auxiliary functionality for filtered search.
+     * @return
+     */
     @GetMapping("/searchAirports")
     @ResponseBody
     public String searchAllAirport(){

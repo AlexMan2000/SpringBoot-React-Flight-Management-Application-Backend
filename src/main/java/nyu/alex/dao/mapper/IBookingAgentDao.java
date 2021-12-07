@@ -32,8 +32,8 @@ public interface IBookingAgentDao {
                                @Param("default") Boolean defaultValue,
                                @Param("sourceAirportName") String sourceAirport,
                                @Param("destAirportName") String destAirport,
-                               @Param("startDate") String startDate,
-                               @Param("endDate") String endDate);
+                               @Param("startDate") Date startDate,
+                               @Param("endDate") Date endDate);
 
     Map<String,Object> bookTicket(Map<String,Object> purchaseForm);
 

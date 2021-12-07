@@ -89,27 +89,6 @@ public class TestController {
         return "success";
     }
 
-
-
-
-    @GetMapping("/updateFlight")
-    @ResponseBody
-    public String testUpdateFlight(){
-        Flight flight = new Flight();
-        flight.setFlightNum("MU7253");
-        flight.setAirlineName("Cathay Pacific");
-        flight.setAirplaneId("A550");
-        flight.setDepartureTime(new Date(10876543));
-        flight.setArrivalTime(new Date(10876543));
-        flight.setPrice(9980.52f);
-        flight.setStatus("Delayed");
-        flight.setSourceAirportName("AUH");
-        flight.setDestAirportName("SZX");
-        airlineStaffDao.updateFlight(flight);
-        return "success";
-    }
-
-
     @GetMapping("/findAirlineStaff/{name}")
     @ResponseBody
     public String testFindAllAirlineStaffByName(@PathVariable("name") String name){

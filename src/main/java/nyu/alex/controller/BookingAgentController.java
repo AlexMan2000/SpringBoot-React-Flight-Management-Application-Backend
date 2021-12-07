@@ -9,6 +9,7 @@ import nyu.alex.dao.entity.Ticket;
 import nyu.alex.service.BookingAgentService;
 import nyu.alex.utils.serviceUtils.PurchaseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,18 +29,35 @@ public class BookingAgentController {
     @Autowired
     private BookingAgentService bookingAgentService;
 
+    /**
+     * Get all the orders created, with filters
+     * Used for View My Order function
+     * @param email
+     * @param defaultValue
+     * @param sourceAirport
+     * @param destAirport
+     * @param startDate
+     * @param endDate
+     * @return
+     */
     @NeedAgent
     @PostMapping("/getMyFlights")
     public String getMyFlights(@RequestParam("email") String email,
                                      @RequestParam(value="default",required=false) Boolean defaultValue,
                                      @RequestParam(value="sourceAirport",required=false) String sourceAirport,
                                      @RequestParam(value="destAirport",required=false) String destAirport,
-                                     @RequestParam(value="startDate",required=false) String startDate,
-                                     @RequestParam(value="endDate",required=false) String endDate){
+                                     @RequestParam(value="startDate",required=false) @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date startDate,
+                                     @RequestParam(value="endDate",required=false) @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date endDate){
+
         List<Flight> myFlights = bookingAgentService.getMyFlights(email, defaultValue,sourceAirport, destAirport, startDate, endDate);
         return JSON.toJSONString(myFlights);
     }
 
+    /**
+     * Purchase tickets on behalf of a particular customer.
+     * @param purchaseForm
+     * @return
+     */
     @NeedAgent
     @PostMapping("/purchaseTicket")
     public String purchaseTicket(@RequestBody PurchaseUtils purchaseForm){
@@ -56,6 +74,8 @@ public class BookingAgentController {
         return JSON.toJSONString(returnValues);
     }
 
+
+    // Deprecated
     @NeedAgent
     @PostMapping("/findAllAvailableTickets")
     public String findAllAvailableTickets(@RequestParam("airlineName") String airlineName, @RequestParam("flightNum") String flightNum){
@@ -63,6 +83,12 @@ public class BookingAgentController {
         return JSON.toJSONString(allTickets);
     }
 
+    /**
+     * Get all the flights available to be purchased, namely all the upcoming flights
+     * excluding those with cancelled or checking in status
+     * @param flight
+     * @return
+     */
     @NeedAgent
     @PostMapping("/getAllAvailableFlights")
     public String getAllAvailableFlights(@RequestBody Flight flight){
@@ -70,12 +96,27 @@ public class BookingAgentController {
         return JSON.toJSONString(allAvailableFlights);
     }
 
+
+    /**
+     *
+     * @param email
+     * @return
+     */
     @NeedAgent
     @GetMapping("/validateCustomer")
     public String findCustomerByEmail(@RequestParam("email")String email){
         return JSON.toJSONString(bookingAgentService.validateCustomer(email));
     }
 
+    /**
+     * Getting the commission information within a particular range of dates of a particular bookingAgent.
+     * Used for requests from CommissionStatistics.js
+     * @param email
+     * @param startDate
+     * @param endDate
+     * @return
+     * @throws ParseException
+     */
     @NeedAgent
     @GetMapping("/getCommissionInfo")
     public String getCommissionInfo(@RequestParam("email") String email,
@@ -88,12 +129,24 @@ public class BookingAgentController {
         return JSON.toJSONString(bookingAgentInfo);
     }
 
+
+    /**
+     * Top 5 customers based on number of commission received in the last year.
+     * @param K
+     * @return
+     */
     @NeedAgent
     @GetMapping("/getTopKCommission")
     public String findTopKCommission(@RequestParam("K") Integer K){
         return JSON.toJSONString(bookingAgentService.findTopKCommssion(K));
     }
 
+
+    /**
+     * Top K customers based on past 6 months and top 5 customers based on tickets bought from the booking agent in the past 6 months.
+     * @param K
+     * @return
+     */
     @NeedAgent
     @GetMapping("/getTopKTickets")
     public String findTopKTickets(@RequestParam("K") Integer K){

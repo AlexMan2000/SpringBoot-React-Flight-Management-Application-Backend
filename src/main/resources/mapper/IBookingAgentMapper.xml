@@ -63,10 +63,10 @@
                 and f.arrival_airport = #{destAirportName}
             </if>
             <if test="startDate != null">
-                and f.departure_time &gt;= #{startDate}
+                and p.purchase_date &gt;= #{startDate}
             </if>
             <if test="endDate != null">
-                and f.departure_time &lt;= #{endDate}
+                and p.purchase_date &lt;= #{endDate}
             </if>
             and p.booking_agent_id is not null
         </where>

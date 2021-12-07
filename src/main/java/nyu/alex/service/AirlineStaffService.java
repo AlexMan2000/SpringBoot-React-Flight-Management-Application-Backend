@@ -187,9 +187,7 @@ public class AirlineStaffService {
         statusMapping.put("permissionValid",true);
         statusMapping.put("success",true);
         AirlineStaff airlineStaffByName = airlineStaffDao.findAirlineStaffByNameAndAirline(grantUtils);
-//        AirlineStaff airlineStaffPermission = airlineStaffDao.findAirlineStaffByNameAndAirlineAndPermission(userName,airlineName,permission);
 
-        System.out.println("Permission To Be Granted"+permissionToBeGranted);
         if(airlineStaffByName==null){
             // 查无此人
             statusMapping.put("nameValid",false);
@@ -197,7 +195,6 @@ public class AirlineStaffService {
         if(airlineStaffByName !=null){
             Set<String> permission_list =  new HashSet<>(airlineStaffByName.getPermissionDescription());
             if(permission_list.containsAll(permissionToBeGranted)) {
-                System.out.println("Permission List" + permission_list);
                 statusMapping.put("permissionValid",false);
             }
         }

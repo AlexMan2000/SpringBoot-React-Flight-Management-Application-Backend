@@ -17,6 +17,7 @@
         <result property="airplaneId" column="airplane_id"></result>
         <result property="ticketId" column="ticket_id"></result>
         <result property="customerEmail" column="customer_email"></result>
+        <result property="purchaseDate" column="purchase_date"></result>
     </resultMap>
 
 

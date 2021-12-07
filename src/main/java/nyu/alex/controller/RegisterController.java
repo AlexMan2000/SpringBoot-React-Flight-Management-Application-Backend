@@ -31,7 +31,7 @@ public class RegisterController {
     @Autowired
     private AirlineService airlineService;
 
-    // Axios Grouping
+    // Deprecated
     @GetMapping("/getAirlineList")
     @ResponseBody
     public List<String> getAirlineList(){
@@ -44,6 +44,12 @@ public class RegisterController {
         return resultList;
     }
 
+
+    /**
+     * Validate customer username if duplicate
+     * @param email
+     * @return
+     */
     @GetMapping("/validateCustomer")
     @ResponseBody
     public Map<String, Boolean> validateCustomer(@RequestParam("email")String email){
@@ -52,6 +58,12 @@ public class RegisterController {
         return stringBooleanMap;
     }
 
+
+    /**
+     * Validate airlineStaff's username if duplicate.
+     * @param username
+     * @return
+     */
     @GetMapping("/validateAirlineStaff")
     @ResponseBody
     public Map<String, Boolean> validateAirlineStaff(@RequestParam("username")String username){
@@ -61,6 +73,12 @@ public class RegisterController {
         return stringBooleanMap;
     }
 
+
+    /**
+     * Validate bookingAgent's username if duplicate.
+     * @param email
+     * @return
+     */
     @GetMapping("/validateBookingAgent")
     @ResponseBody
     public Map<String, Boolean> validateBookingAgent(@RequestParam("email")String email){
@@ -68,6 +86,11 @@ public class RegisterController {
         return stringBooleanMap;
     }
 
+    /**
+     * Register customers
+     * @param customer
+     * @return
+     */
     @PostMapping("/registerCustomer")
     @ResponseBody
     public String registerCustomer(@RequestBody Customer customer){
@@ -77,6 +100,11 @@ public class RegisterController {
         return "success";
     }
 
+    /**
+     * Simultaneously updates two tables for insert new airlineStaff
+     * @param airlineStaff
+     * @return
+     */
     @PostMapping("/registerAirlineStaff")
     @ResponseBody
     public String registerAirlineStaff(@RequestBody AirlineStaff airlineStaff){
@@ -85,6 +113,11 @@ public class RegisterController {
         return "success";
     }
 
+    /**
+     * Register bookingAgent
+     * @param bookingAgent
+     * @return
+     */
     @PostMapping("/registerBookingAgent")
     @ResponseBody
     public String registerBookingAgent(@RequestBody BookingAgent bookingAgent){

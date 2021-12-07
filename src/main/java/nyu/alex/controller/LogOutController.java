@@ -16,7 +16,7 @@ import javax.servlet.http.HttpSession;
 public class LogOutController {
 
     /**
-     * Log user out
+     * Log user out, invalidate the session.
      * @param request
      * @return
      */

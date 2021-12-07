@@ -27,8 +27,9 @@ public class AirlineStaffController {
 
 
     /**
-     * Find all upcoming flights
-     * @return
+     * Find all upcoming flights, regardless of which airlines or which customers
+     * Used for requests from FlightCRUD.js when the filters are all none. (default view)
+     * @return List of flights
      */
     @NeedStaff
     @GetMapping("/findAllFlights")
@@ -42,6 +43,13 @@ public class AirlineStaffController {
         return JSON.toJSONString(results);
     }
 
+
+    /**
+     * Find all the flights information within a particular airline.
+     * Used for requests from View My Flight.js
+     * @param airlineName
+     * @return
+     */
     @NeedStaff
     @GetMapping("/findAllFlightsForAirline")
     public String findAllFlightsForAirline(@RequestParam("airlineName") String airlineName){
@@ -54,7 +62,8 @@ public class AirlineStaffController {
     }
 
     /**
-     * Find all the flights with filters
+     * Find all the flights with filters (if any)
+     * Used for requests from FlightCRUD.js
      * @param flight
      * @return
      */
@@ -72,9 +81,10 @@ public class AirlineStaffController {
 
     /**
      * Find view reports for a given airlineStaff
+     * Used for requests from ViewReports.js
      * @param airlineName
-     * @param startDate
-     * @param endDate
+     * @param startDate Specify the startDate for range searching
+     * @param endDate Specify the endDate for range searching
      * @return
      */
     @NeedStaff
@@ -98,6 +108,7 @@ public class AirlineStaffController {
 
     /**
      * Find top destinations
+     * Used for requests from TopDestinations.js
      * @param past
      * @return
      */
@@ -109,6 +120,7 @@ public class AirlineStaffController {
 
     /**
      * Revenue Comparison Function
+     * Used for requests from RevenueComparison.js
      * @param past
      * @param airlineName
      * @return
@@ -120,6 +132,7 @@ public class AirlineStaffController {
 
     /**
      * Find top K bookingAgent based on sales or commission with date range
+     * Used for requests from ViewAgent.js
      * @param type
      * @param past
      * @param K
@@ -143,6 +156,7 @@ public class AirlineStaffController {
 
     /**
      * View Frequent Customers with threshold
+     * Used for requests from ViewFrequent.js
      * @param K
      * @param airlineName
      * @return
@@ -157,7 +171,8 @@ public class AirlineStaffController {
 
 
     /**
-     * Add new flight, with authentification
+     * Add new flight
+     * Used for requests from FlightCRUD.js
      * @param flight
      * @return
      */
@@ -174,6 +189,7 @@ public class AirlineStaffController {
 
     /**
      * Update the status of the flight.
+     * Used for requests from FlightCRUD.js
      * @param flight
      * @return
      */
@@ -193,6 +209,7 @@ public class AirlineStaffController {
 
     /**
      * Add new airport, with authentication
+     * Used for requests from EditAirport.js
      * @param airport
      * @return
      */
@@ -210,6 +227,7 @@ public class AirlineStaffController {
 
     /**
      * Add new airplane, with authentication
+     * Used for requests from EditAirplane.js
      * @param airplane
      * @return
      */
@@ -224,6 +242,12 @@ public class AirlineStaffController {
         return "success";
     }
 
+
+    /**
+     * Used for requests from EditAirplane.js, displaying the airplanes for a particular airline
+     * @param airlineName
+     * @return
+     */
     @GetMapping("/getAllAirplanes")
     @NeedStaff
     public String showAllAirplanesForAirline(@RequestParam("airlineName") String airlineName){
@@ -282,8 +306,6 @@ public class AirlineStaffController {
     public String addBookingAgent(@RequestParam("email") String email,
                                   @RequestParam("airlineName") String airlineName){
         Map<String, Boolean> stringBooleanMap = JSON.parseObject(validateBookingAgent(email, airlineName),Map.class);
-        System.out.println("不知道行不行");
-        System.out.println(stringBooleanMap);
         if(stringBooleanMap.get("emailValid")==true&&stringBooleanMap.get("workingValid")==true){
             airlineStaffService.addAgent(email,airlineName);
             stringBooleanMap.put("success",true); }else{
@@ -310,6 +332,7 @@ public class AirlineStaffController {
 
     /**
      * Delete the flight.
+     *  Used for requests from FlightCRUD.js
      * @param flightNum
      * @param airlineName
      * @return

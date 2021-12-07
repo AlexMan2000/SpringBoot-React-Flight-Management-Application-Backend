@@ -45,6 +45,11 @@ public class CustomerController {
     }
 
 
+    /**
+     * Get all the flights available to purchase. (excluding the flight status of cancelled or checking in.)
+     * @param flight
+     * @return
+     */
     @NeedCustomer
     @PostMapping("/getAllAvailableFlights")
     public String getAllAvailableFlights(@RequestBody Flight flight){
@@ -52,6 +57,18 @@ public class CustomerController {
         return JSON.toJSONString(allAvailableFlights);
     }
 
+
+    /**
+     * View my Flights. With filters
+     * @param email
+     * @param sourceAirport
+     * @param destAirport
+     * @param startDate
+     * @param endDate
+     * @param status
+     * @return
+     * @throws ParseException
+     */
     @NeedCustomer
     @PostMapping("/getMyFlights")
     public String getMyFilteredFlights(@RequestParam("email") String email,
@@ -62,7 +79,7 @@ public class CustomerController {
                                                  @RequestParam(value = "default",required = false) String status) throws ParseException {
         Date parsedStartDate = null;
         Date parsedEndDate = null;
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         if(startDate!=null){
             parsedStartDate = df.parse(startDate);
         }
@@ -73,6 +90,12 @@ public class CustomerController {
         return JSON.toJSONString(flights);
     }
 
+
+    /**
+     * Handle purchase tickets.
+     * @param purchaseForm
+     * @return
+     */
     @NeedCustomer
     @PostMapping("/purchaseTicket")
     public String purchaseTicket(@RequestBody PurchaseUtils purchaseForm){
@@ -88,6 +111,11 @@ public class CustomerController {
     }
 
 
+    /**
+     * Track customer's spending.
+     * @param track
+     * @return
+     */
     @NeedCustomer
     @PostMapping("/trackSpending")
     public String trackSpending(@RequestBody TrackSpendingUtils track){
