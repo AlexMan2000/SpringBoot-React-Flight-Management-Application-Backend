@@ -230,6 +230,10 @@ public class AirlineStaffService {
         return flightDao.findAllFlightsFiltered(flight);
     }
 
+    public Flight findConflictFlight(Flight flight){
+        return airlineStaffDao.findConflictFlight(flight);
+    }
+
 
     public Flight findFlight(Flight flight) { return airlineStaffDao.findFlight(flight);}
 

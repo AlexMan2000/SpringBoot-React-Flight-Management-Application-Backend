@@ -44,6 +44,8 @@ public interface IAirlineStaffDao {
 
     Flight findFlight(Flight flight);
 
+    Flight findConflictFlight(Flight flight);
+
     void insertNewFlights(Flight flight);
 
     void insertNewAirlineStaff(AirlineStaff airlineStaff);

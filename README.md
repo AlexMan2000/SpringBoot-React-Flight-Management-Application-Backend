@@ -3,9 +3,25 @@
 ## Framework
 
 - **Backend**: Springboot 2.5.4 + Mybatis + Mysql database
+  - **MyBatis**是一个Java持久化框架，它通过XML描述符或注解把对象与存储过程或SQL语句关联起来，映射成数据库内对应的纪录
+  - **SpringBoot**:轻量级的Java 开发框架。框架的主要优势之一就是其分层架构，分层架构允许使用者选择使用哪一个组件, 本项目采用到的是其面向切面编程(**AOP**)和依赖注入(**IOC**)思想达到对象组件重用的目的
+
 - **Frontend**: React + antd
+  - React: 是一个JavaScript该库旨在简化可视界面的开发
+  - antd: 预定义组件, 可重用组件.
+
 
 ![image-20211207115937456](C:\Users\DELL\AppData\Roaming\Typora\typora-user-images\image-20211207115937456.png)
+
+- **SQL Execution Logic**
+
+​	![](C:\Users\DELL\Desktop\NYU\NYU Class Materials\NYUFall2021Courses\Database\Project\Execution_Logic.jpg)
+
+![image-20211209105811488](C:\Users\DELL\AppData\Roaming\Typora\typora-user-images\image-20211209105811488.png)
+
+
+
+
 
 
 
@@ -209,3 +225,37 @@
 
 
 
+
+
+
+
+# Contributions
+
+## Ni Jiasheng(jn2294)
+
+- Backend Coding and Design.
+- SQL statements definement.
+- Frontend Skeleton Coding,  Callback functions declarations and realization.
+- Debugging.
+
+
+
+## Yang Muqing(ym2127)
+
+- Frontend Logic Design (redirecting, re-rendering,control logics) and callback function realization.
+- Data Injection.
+- SQL statements refinement and Optimization.
+- Debugging.
+
+
+
+
+
+
+
+# Future Work
+
+- Adding **Multi-Threading** aspects into the framework.
+- **Optimize the SQLs** to have better performance.
+- Rewrite part of the frontend interface so as to deliver **better user experience.**
+- Using **Spring Security Framework** to perform a systematic authentication, may require a thorough rewrite on the database tables.

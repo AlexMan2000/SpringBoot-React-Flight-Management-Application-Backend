@@ -28,4 +28,5 @@ public class Customer implements Serializable {
     private Integer ticketsFromAgent;
     private Integer ticketsTotal;
     private Float totalCommission;
+    private String airlineName;
 }

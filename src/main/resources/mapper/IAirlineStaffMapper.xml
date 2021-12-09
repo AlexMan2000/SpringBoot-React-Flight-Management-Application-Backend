@@ -243,11 +243,11 @@
             (select distinct c.*,count(p.ticket_id) as total_tickets from customer c left join purchases p on c.email = p.customer_email
         left join ticket t on p.ticket_id = t.ticket_id
         left join flight f on t.airline_name = f.airline_name and t.flight_num = f.flight_num
-        <where>
-            <if test="airlineName!=null">
-                and f.airline_name = #{airlineName}
-            </if>
-        </where>
+<!--        <where>-->
+<!--            <if test="airlineName!=null">-->
+<!--                and f.airline_name = #{airlineName}-->
+<!--            </if>-->
+<!--        </where>-->
         group by c.email order by total_tickets desc)
         select * from tmp_result UNION ALL(
             select c.* ,0 as total_tickets from customer c
@@ -293,6 +293,10 @@
 
     <select id="findFlight" parameterType="nyu.alex.dao.entity.Flight" resultType="nyu.alex.dao.entity.Flight">
         select * from flight where airline_name = #{airlineName} and flight_num = #{flightNum}
+    </select>
+
+    <select id="findConflictFlight" parameterType="nyu.alex.dao.entity.Flight" resultType="nyu.alex.dao.entity.Flight">
+        select * from flight where airline_name = #{airlineName} and departure_time=#{departureTime} and arrival_time=#{arrivalTime} and airplane_id=#{airplaneId}
     </select>
 
     <insert id="insertNewAirlineStaff" parameterType="nyu.alex.dao.entity.AirlineStaff">

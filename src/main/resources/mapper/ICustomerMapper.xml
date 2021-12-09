@@ -63,7 +63,7 @@
             left join ticket t on f.airline_name = t.airline_name and f.flight_num = t.flight_num
             left join purchases p on t.ticket_id = p.ticket_id
             left join customer c on p.customer_email = c.email
-            where c.email = #{email} and f.arrival_time &lt;= NOW() and f.status != 'cancelled'
+            where c.email = #{email} and f.airline_name=#{airlineName} and f.arrival_time &lt;= NOW() and f.status != 'cancelled'
     </select>
 
 <!--    <select id="findAllFlightsWithCustomer" parameterType="String" resultMap="customer">-->

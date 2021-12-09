@@ -7,6 +7,7 @@ import nyu.alex.dao.entity.*;
 import nyu.alex.aop.NeedAdmin;
 import nyu.alex.aop.NeedLogin;
 import nyu.alex.service.AirlineStaffService;
+import nyu.alex.service.CustomerService;
 import nyu.alex.utils.serviceUtils.GrantUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,8 @@ public class AirlineStaffController {
     @Autowired
     private AirlineStaffService airlineStaffService;
 
-
+    @Autowired
+    private CustomerService customerService;
     /**
      * Find all upcoming flights, regardless of which airlines or which customers
      * Used for requests from FlightCRUD.js when the filters are all none. (default view)
@@ -169,6 +171,12 @@ public class AirlineStaffController {
         return JSON.toJSONString(airlineStaffService.findTopKFreqCustomers(K,airlineName));
     }
 
+    @NeedStaff
+    @PostMapping("/findCustomersFlightAirline")
+    public String findCustomerFlightsOnAirline(@RequestParam("email") String email,@RequestParam("airlineName") String airlineName){
+        List<Flight> result = customerService.findCustomerFlightsOnAirline(email,airlineName);
+        return JSON.toJSONString(result);
+    }
 
     /**
      * Add new flight
@@ -179,9 +187,13 @@ public class AirlineStaffController {
     @NeedAdmin
     @PostMapping("/addNewFlight")
     public String addNewFlight(@RequestBody Flight flight){
+        Flight flightConflict = airlineStaffService.findConflictFlight(flight);
         Flight flightRes = airlineStaffService.findFlight(flight);
         if(flightRes!=null){
             return "Error";
+        }
+        if(flightConflict!=null){
+            return "Occupied";
         }
         airlineStaffService.addNewFlight(flight);
         return "success";

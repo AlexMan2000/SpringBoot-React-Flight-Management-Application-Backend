@@ -40,4 +40,6 @@ public interface ICustomerDao {
 //    List<Map<String,Float>> trackSpending(@Param("email") String email, @Param("timespan") Date[] timespan);
 
     List<DataRow> trackSpending(TrackSpendingUtils track);
+
+    List<Flight> findAllFlightsOfCustomer(@Param("email") String email,@Param("airlineName") String airlineName);
 }

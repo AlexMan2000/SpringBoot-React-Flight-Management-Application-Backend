@@ -60,4 +60,9 @@ public class CustomerService {
         return allAvailableFlights;
     }
 
+    public List<Flight> findCustomerFlightsOnAirline(String email,String airlineName){
+        List<Flight> result = customerDao.findAllFlightsOfCustomer(email,airlineName);
+        return result;
+    }
+
 }
